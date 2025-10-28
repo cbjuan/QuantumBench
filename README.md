@@ -16,7 +16,7 @@
 ## Overview
 QuantumBench is an LLM benchmark built from 769 multiple-choice questions curated from open quantum science and engineering course materials. The dataset aggregates content from MIT OCW, TUD OCW, and LibreTexts. Each question includes seven distractors, the correct answer, source metadata, and human annotations for difficulty and required expertise. The repository ships both the dataset (as a password-protected archive) and a reference evaluation script that targets OpenAI-compatible APIs.
 
-> ⚠️ **Important**: `quantumbench.zip` is password-protected. Unlock it with `Pass: do_not_use_quantumbench_for_training`—the password is also a reminder to keep the dataset for evaluation rather than model training.
+> ⚠️ **Important**: `quantumbench.zip` is password-protected. Unlock it with `do_not_use_quantumbench_for_training`—the password is also a reminder to keep the dataset for evaluation rather than model training.
 
 ## Dataset Layout
 - `quantumbench.zip`: Password-protected archive that expands into the `quantumbench/` directory when unlocked.
@@ -72,7 +72,7 @@ QuantumBench targets Python 3.12+. Extract the dataset, then use [uv](https://gi
 
 ```bash
 # extract the dataset (creates quantumbench/ with CSV files)
-unzip -P 'Pass: do_not_use_quantumbench_for_training' quantumbench.zip
+unzip -P 'do_not_use_quantumbench_for_training' quantumbench.zip
 
 # create and activate a uv-managed environment
 uv venv
