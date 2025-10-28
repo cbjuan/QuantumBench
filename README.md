@@ -4,7 +4,7 @@
 </div>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2501.16986"><b>arxiv Paper Link</b></a>
+  <a href="https://arxiv.org/abs/XXXX.XXXX"><b>arxiv Paper Link</b></a>
 </p>
 <hr>
 
