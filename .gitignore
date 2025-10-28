@@ -10,6 +10,6 @@ wheels/
 .venv
 
 # Dataset
-quantumbench/quantumbench.csv
+quantumbench/*
 cache/*
 outputs/*

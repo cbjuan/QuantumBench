@@ -1,0 +1,588 @@
+                      QuantumBench: ABenchmarkforQuantumProblemSolving
+                                                      Anonymoussubmission
+                                                                  Abstract
+                 Large language models are now integrated into many scientiĄc workĆows, accelerating data analysis, hypothesis
+                 generation, and design space exploration. In parallel with this growth, there is a growing need to carefully evaluate
+                 whether models accurately capture domain-speciĄc knowledge and notation, since general-purpose benchmarks
+                 rarely reĆect these requirements. This gap is especially clear in quantum science, which features non-intuitive
+                 phenomenaandrequiresadvancedmathematics. In this study, we introduce QuantumBench, a benchmark for the
+                 quantum domain that systematically examine how well LLMs understand and can be applied to this non-intuitive Ąeld.
+                 Using publicly available materials, we compiled approximately 800 questions with their answers spanning nine areas
+                 related to quantum science and organized them into an eight-option multiple-choice dataset. With this benchmark,
+                 weevaluate several existing LLMs and analyze their performance in the quantum domain, including sensitivity to
+                 changes in question format. QuantumBench is the Ąrst LLM evaluation dataset built for the quantum domain, and it is
+                 intended to guide the effective use of LLMs in quantum research.
+                 Keywords:Large Language Models, Benchmarking, Question Answering, Quantum Science
+                                1.   Introduction                        quantum many-body physics, for example, LLMs
+                                                                         perform well on prescribed computational proce-
+                 Recentadvancesinlargelanguagemodels(LLMs)               dures but show limited ability to incorporate physi-
+                 are reshaping scientiĄc research activities. Beyond     cal context when planning experiments (Pan et al.,
+                 information gathering, paper summarization and          2025). These observations imply that LLMs do not
+                 manuscriptdrafting, LLMs are now used for hypoth-       yet possess robust, domain-speciĄc scientiĄc rea-
+                 esis generation and experimental design. Further-       soning, underscoring the need to assess whether
+                 more, recent studies are beginning to demonstrate       they genuinely acquire domain knowledge.
+                 the utility of research-agent systems for end-to-         In this work, we focus on quantum science, a
+                 end research workĆows, including AI Scientist (Lu       domain marked by non-intuitive phenomena and
+                 etal., 2024;Yamadaetal.,2025)andAgentLabora-            advanced mathematical structures, where exist-
+                 tory (Schmidgall et al., 2025). These developments      ing general-purpose benchmarks are likely insuf-
+                 indicate a plausible path toward greater automation     Ącient to evaluate LLM performance adequately.
+                 of the research pipeline and raise the prospect of      To address this challenge, we construct Quantum-
+                 AI-enabled scientiĄc discoveries.                       Bench, a benchmark dataset that systematically
+                    For example, in quantum science, LLMs are            assesseshowwellLLMsunderstandandcanbeap-
+                 applied to tasks ranging from code generation           plied to quantum science. Using publicly available
+                 to experimental design.      The Qiskit Code As-        resources such as MIT OpenCourseWare (Mas-
+                 sistant (Dupuis et al., 2024) can generate code         sachusetts Institute of Technology), TU Delft Open-
+                 for quantum programming with the Qiskit li-             CourseWare (Delft University of Technology), and
+                 brary (Javadi-Abhari et al., 2024), and is inte-        LibreTexts (LibreTexts), we have selected Ąfteen
+                 grated into the IBM Quantum platform. Similarly,        courses and textbooks related to quantum science
+                 El Agente Q (Zou et al., 2025) autonomously con-        andcollected the corresponding lecture notes, ex-
+                 ducts quantum chemistry calculations by orches-         ercises, and assignments. From these materials,
+                 trating more than twenty domain-speciĄc agents          questionŰanswer pairs have been created, and en-
+                 under LLM supervision. With natural-language in-        coded as eight-option multiple-choice questions
+                 structions alone, users can prepare input Ąles and      with plausible but incorrect options alongside the
+                 execute computations, enabling non-specialists to       correct answer. QuantumBench comprises approx-
+                 perform advanced quantum chemistry simulations.         imately 800 undergraduate-level questionŰanswer
+                 In addition, the agent-based AI framework called        pairs across nine quantum-related subĄelds.
+                 k-agents automates quantum-computing experi-              QuantumBench enables comprehensive, com-
+                 ments by planning, executing, and analyzing them        parative evaluation of existing LLMs in the quan-
+                 using LLMs (Cao et al., 2025).                          tum domain. We quantify LLM performance on
+                    However, the performance of LLMs on scien-           quantumtasks, including sensitivity to variation in
+                 tiĄc tasks has not yet been sufficiently validated.     question format and wording. Beyond quantum sci-
+                 LLMscangenerateplanswithserious errors and              ence, the benchmarkhighlights the need for further
+                 inconsistencies, such as fabricated references or       improvements in the use of LLMs across scientiĄc
+                 datasets, as well as proposals for physically infea-    Ąelds and helps accelerate the development of AI
+                 sible experimental conditions (Eger et al., 2025). In   for scientiĄc research.
+                                                                      1
+                                2.    Related Work                        ing checkpoints, including 15 questions in quantum
+                                                                          information science and technology. While these
+                  Various general-purpose benchmarks exist. For           resources are valuable for assessing capabilities
+                  example, The Massive Multitask Language Under-          across science and physics, they are insufficient
+                  standing (MMLU) benchmark (Hendrycks et al.,            for comprehensive benchmarking of model ability
+                  2020) is a widely used benchmark of the general         in quantum science.
+                  capabilities of LLMs across academic and pro-              For quantum-speciĄc evaluation, major ef-
+                  fessional domains. It comprises multiple-choice         forts focus on coding skill for quantum pro-
+                  questions from 57 subjects, including elementary        gramming, with benchmarks such as QiskitHu-
+                  mathematics and computer science, and assesses          manEval(Vishwakarma et al., 2024) and QCoder
+                  broad knowledge relevant to research. MMLU-             Benchmark (Mikuriya et al., 2025). As a corpus
+                  Pro (Wang et al., 2024) extends MMLU by increas-        of questionŰanswer pairs, QuantumLLMInstruct
+                  ing the number of answer choices to ten to raise        (QLMMI)(Kashani, 2024) includes 500,000 items.
+                  reasoning difficulty.  For advanced evaluations,        However, since QLMMI was generated entirely by
+                  GPQA(Reinetal.,2024)isproposedasarepresen-              LLMs, and designed for Ąne-tuning rather than
+                  tative benchmark targeting PhD-level subjects with      rigorous evaluation, it does not serve as an ad-
+                  expert-authored, high-quality problems that are not     equate benchmark for assessing model perfor-
+                  answerable through simple search or shallow rea-        mance. Human-authored datasets such as MMLU
+                  soning, makingit a standard for assessing doctoral-     and GPQA remain important for advancing ap-
+                  level competence. More recently, HumanityŠs Last        plications. In this study, we construct a bench-
+                  Exam(Phan et al., 2025) spans dozens of Ąelds           markfrompubliclyavailableresourcesbycollecting
+                  across mathematics, the humanities, and the natu-       undergraduate-level questions authored by domain
+                  ral sciences, and includes 3,000 ultra-challenging      experts, thereby providing an evaluation framework
+                  problems that demand deep reasoning and ad-             for knowledge understanding and reasoning in the
+                  vanced expertise beyond data lookup.                    quantumdomain.
+                    Numerousdomain-speciĄc benchmark datasets
+                  have also been proposed.         For mathematics,                    3.    QuantumBench
+                  MATH (Hendrycks et al., 2021) contains about
+                  12,500 problems drawn from competitive contests         In this section, we outline the construction proce-
+                  in the United States, spanning algebra, number the-     dure of QuantumBench and present an overview
+                  ory, geometry, probability, and combinatorics. Un-      of the dataset.
+                  like generalbenchmarkssuchasMMLUandGPQA,
+                  which primarily use multiple-choice formats, MATH
+                  employs short-answer, free-response questions           3.1.   Dataset Construction
+                  without predeĄned options, thereby evaluating pre-
+                  cise mathematical reasoning and solution deriva-        Weselected 15 quantum scienceŰrelated online
+                  tion. In the biomedical domain, PubMedQA (Jin           courses and teaching materials from MIT Open-
+                  et al., 2019) is a representative benchmark, con-       CourseWare, TU Delft OpenCourseWare, and Li-
+                  taining approximately 1,000 questions in the form       breTexts. These sources include assignments and
+                  of ŞYes/No/Maybe,Ť created based on academic            examinations together with instructor-provided so-
+                  questions from papers published in PubMed. Pub-         lutions. From these materials, we chose 769 ques-
+                  MedQAiswidelyusedtoevaluate large language              tions for which the questionŰanswer mapping was
+                  modelsŠ ability to understand and interpret medi-       unambiguous and the solution was uniquely de-
+                  cal contexts, thereby facilitating advancements in      termined. Table 1 summarizes the course titles,
+                  biomedical research and drug discovery. Collec-         subject areas, and the number of collected items.
+                  tively, such domain-speciĄcbenchmarksprobespe-             Next, we preprocessed the collected question
+                  cialized abilities and sensitivity to the representa-   statements. To ensure that each question can be
+                  tions and conventions of each Ąeld that general-        understood and solved in isolation, we manually
+                  purpose evaluations do not capture, enabling more       augmented the texts with missing information, in-
+                  valid assessments of model performance in real-         cluding implicit notation and unstated deĄnitions,
+                  world settings.                                         with assistance from an LLM (gpt-oss-120b (Agar-
+                    In contrast, benchmark datasets specialized for       wal et al., 2025)). We also used the LLM to Ćag
+                  the quantum domain remain limited. Within GPQA,         ambiguities or omissions and to check internal con-
+                  only 64 items cover quantum mechanics. More re-         sistency and completeness. For each problem, we
+                  cently, CritPt (Zhu et al., 2025) was introduced to     created seven plausible but incorrect options in ad-
+                  test whether models can perform advanced scien-         dition to the correct answer. These options were
+                  tiĄc reasoning required in frontier physics; it com-    human-curatedandcovernotonlysimplemistakes,
+                  prises 71 challenges with 190 intermediate reason-      such as sign errors, but also responses reĆecting
+                                                                        2
+                           Platform       Lecture Titles                                                                        Domain                       NumberofProblems
+                           MITOCW         Computational Quantum Mechanics of Molecular and Extended Systems                     QuantumChemistry                                   2
+                           MITOCW         Introduction to Applied Nuclear Physics                                               Nuclear Physics                                  38
+                           MITOCW         Introductory Quantum Mechanics I                                                      QuantumMechanics                                   5
+                           MITOCW         Optics (2014)                                                                         Optics                                           49
+                           MITOCW         Optics (2009)                                                                         Optics                                          122
+                           MITOCW         QuantumComputation                                                                    QuantumComputation                               43
+                           MITOCW         QuantumOptical Communication                                                          Photonics                                       118
+                           MITOCW         QuantumPhysicsI                                                                       QuantumMechanics                                130
+                           MITOCW         Relativistic Quantum Field Theory I                                                   QuantumField Theory                              81
+                           MITOCW         Relativistic Quantum Field Theory II                                                  QuantumField Theory                              21
+                           MITOCW         Relativistic Quantum Field Theory III                                                 QuantumField Theory                                8
+                           MITOCW         String Theory and Holographic Duality                                                 String Theory                                    23
+                           MITOCW         String Theory                                                                         String Theory                                    17
+                           TUDOCW QuantumInformationProcessing                                                                  QuantumComputation                               19
+                           LibreTexts     Physical Chemistry I, Quantum Mechanics                                               QuantumChemistry                                 93
+                         Table 1: The titles of the lectures used as data sources, their corresponding academic Ąelds, and the
+                         numberofquestions collected
+                                                     Algebraic    Numerical      Conceptual     Total                Criteria
+                                                    Calculation  Calculation   Understanding                Level 1  Aproblemwhosecorrect answer can be obtained immediately
+                           QuantumMechanics                177            21               14    212        Level 2  Aproblemwith an obvious solution
+                           QuantumComputation               54             1                5      60                that can be solved with simple calculations
+                           QuantumChemistry                 16            64                6      86       Level 3  Aproblemwhosesolution comes to mind quickly
+                           QuantumField Theory             104             1                2    107                 but requires somewhat tedious steps
+                           Photonics                        54             1                2      57       Level 4  Aproblemthat requires some thought to discover the solution,
+                           Mathematics                      37             0                0      37                or whose solution is obvious but involves considerably tedious steps
+                           Optics                          101            41               15    157        Level 5  Aproblemwhosesolution cannot be easily identiĄed
+                           Nuclear Physics                    1           15                2      18
+                           String Theory                    31             0                2      33            Table 3: Difficulty levels and their criteria
+                           Total                           575           144               50    769
+                              Table 2: Number of questions per domains                                              Criteria
+                                                                                                            Level 1 Anelementary problem, non-specialists can understand the question.
+                                                                                                            Level 2 People who studied physics can understand the the question.
+                                                                                                            Level 3 Understanding requires having read technical texts in the Ąeld.
+                                                                                                            Level 4 Only experts who conduct research in that Ąeld can understand the question.
+                         misinterpretation of the statement or mistakes aris-                                    Table 4: Expertise levels and their criteria
+                         ing at intermediate calculations.
+                             Finally, some of the authors annotated each                                  3.2.      SummaryoftheDataset
+                         problem with one of three question types: alge-
+                         braic calculation (symbolic manipulation and for-                                Table 2 shows the number of items in the Ąnal
+                         mula derivation), numerical calculation (compu-                                  dataset by Ąelds. Of the 769 problems, Algebraic
+                         tations with explicit numerical values), and con-                                Calculation is the largest category, with 575 items
+                         ceptual understanding (knowledge- and principle-                                 (approximately 75% of the dataset), indicating that
+                         based questions without explicit calculation). We                                the collection is dominated by questions focused
+                         also assigned a Ąeld label to each problem. Be-                                  onsymbolic and analytical derivation. By subĄeld,
+                         causesomecoursesincludequestionsfromrelated                                      quantummechanicsaccountsforthelargestshare,
+                         areas (for example, a quantum mechanics course                                   followed by optics. Several representative exam-
+                         mayinclude a few quantum chemistry questions),                                   ples are presented in Table 5.
+                         werelabeled Ąelds based on actual content to im-                                     Figure 1 shows a t-SNE (Maaten and Hinton,
+                         prove the quality of categorization. The category                                2008)projectionofthequestionstatementsembed-
+                         comprisesnineĄeldsintotal: eight lecture-oriented                                dedwith OpenAIŠs text-embedding-3-large model.
+                         Ąelds plus an additional Mathematics category.                                   The resulting clusters align with Ąelds, indicating
+                             Wealsocategorizedall769problemsbydifficulty                                  clear semantic separation in the embedding space.
+                         and expertise level. Three researchers in quantum                                Thecluster structure is roughly organized into four
+                         science performed the level annotation, rating diffi-                            groups: (i) Quantum Computation, (ii) Optics, (iii)
+                         culty level on a Ąve-point scale from Level 1 (trivial)                          QuantumMechanics and related areas including
+                         to Level 5 (challenging) and expertise level on a                                QuantumChemistry and Nuclear Physics, and (iv)
+                         four-point scale from Level 1 (high school) to Level                             Quantum Field Theory and String Theory, which
+                         4 (PhD). It is acceptable that the annotators do not                             require advanced algebraic calculations.
+                         assign levels to some items because those topics                                     Figure2illustratesthedistributionofdifficultyand
+                         were outside their areas of expertise. For each                                  expertise level across the categories (domain and
+                         problem, the Ąnal label was the median of the three                              type). The overall average difficulty level is 2.68,
+                         ratings. The criteria appear in Table 3 and Table 4.                             and the average expertise level is 2.37. These
+                                                                                                      3
+                                                                                 (a)
+                                                                                 (b)
+                  Figure 1:  Visualization of QuantumBench. The
+                  questions were embedded into 3072-dimensional
+                  vectors using text-embedding-3-large, and mapped
+                  onto a two-dimensional space using t-SNE.              Figure 2:   Distribution of difficulty and expertise
+                                                                         levels by category. (a) Difficulty level, ranging from
+                  statistics suggest that QuantumBench primarily         1 (trivial) to 5 (challenging). (b) Expertise level,
+                  comprises standard-level questions typical of un-      ranging from 1 (high school) to 4 (PhD). The graph
+                  dergraduate education. Notably, no problems clas-      shows the distribution of problems that were evalu-
+                  siĄed as difficulty level 5 (challenging) or requir-   ated by at least one annotator.
+                  ing an expertise level 4 (PhD) are included. This
+                  indicates that QuantumBench serves as a bench-         benchmark data and code is available at GitHub1.
+                  mark to evaluate whether a model can consistently
+                  demonstrate the fundamental knowledge and rea-         4.1.   Zero-Shot
+                  soning abilities required for conducting research in
+                  quantumscience.                                        For each problem, the model received only the
+                    Because the levels of difficulty and expertise       question statement and answer choices, and we
+                  are not uniform among domains and problem              evaluated whether it could select the correct an-
+                  types, cross-category comparisons within a single      swer (Bowman et al., 2022). Figure 3(a) reports
+                  modelarenotmeaningful. Instead,QuantumBench            accuracy for all 48 model conĄgurations on the
+                  should be used to evaluate model performance           full QuantumBench dataset. The current frontier
+                  independently within each category, enabling fair      model, GPT-5, achieved the highest performance,
+                  comparisons of distinct models.                        while open-weight models such as gpt-oss-120b
+                                                                         and Qwen3-235B reached comparable accuracy.
+                                4.    Experiments                        Mosthigh-performing models were reasoning mod-
+                                                                         els.  Although non-reasoning models, including
+                                                                         Qwen3-Max and Llama4-Maverik, performed rel-
+                 We evaluated 11 OpenAI models (Brown et al.,            atively well, their accuracy did not exceed 80%.
+                  2020; Achiam et al., 2023; Agarwal et al., 2025),      These results indicate that many tasks in the quan-
+                  6 Meta models (Touvron et al., 2023; Dubey et al.,     tum domain require multi-step reasoning, and that
+                  2024), 5 Alibaba models (Yang et al., 2025), 3         explicit mechanisms for sequential reasoning are a
+                  Google models (Gemini Team, 2023), 1 DeepSeek          key determinant of performance.
+                  model (Guo et al., 2025), and 1 Moonshot AI               Model accuracy generally increases with the
+                  model (Kimi Team, 2025). For OpenAI and Google         number of parameters (Kaplan et al., 2020). Fig-
+                  models without public weights, inference was con-      ure3(b)showstherelationshipbetweenmodelsize
+                  ductedviaAPI;allothermodelswererunonNVIDIA             and accuracy, and the similar trend holds in Quan-
+                  H100GPUsusingABCI-Q.Forreasoningmodels,                tumBench. Non-reasoning models exhibit a clear
+                 wevaried reasoning strength and evaluated multi-        performance gain as scale grows. By contrast, rea-
+                  ple conĄgurations. During inference, web search
+                  andexternal tool use were disabled to evaluate the        1https://anonymous.4open.science/r/
+                  isolate model-internal problem-solving ability. Our    anon_QuantumBench-04E1/
+                                                                       4
+                                                                          QuantumComputation
+                                           1                                                                                       1
+                       Consider the state √ (|000⟩ + |111⟩). Suppose all three qubits of this state are measured in the |+⟩ = {√ (|0⟩ + |1⟩),|−⟩ =
+                                            2                                                                                      2
+                        1
+                       √2(|0⟩−|1⟩)} basis. What are the possible joint outcomes of these measurements?
+                            1                                                                 1
+                       (A) √ (|−+−⟩+|+−+⟩)                                               (E) √ (|+−−⟩+|−++⟩)
+                             2                                                                 2
+                           1                                                                  1
+                       (B) 2(| + ++⟩+|++−⟩+|−+−⟩+|+−−⟩)                                  (F) √ (| −−+⟩+|++−⟩)
+                                                                                               2
+                       (C) 1(| + ++⟩+|++−⟩+|−−−⟩+|−++⟩)                                  (G) 1(| + ++⟩+|−−+⟩+|−+−⟩+|+−−⟩)
+                           2                                                                  2
+                            1                                                                 1
+                       (D) √2(|+++⟩+|−−−⟩)                                               (H) 2(| + ++⟩+|−−+⟩+|−−−⟩+|−++⟩)
+                                                                           QuantumFieldTheory
+                       In this problem we consider the chiral representation, and write a Dirac spinor ψ in terms of two chiral spinors ψ   andψ as
+                                                                                                                                         L        R
+                       ψ=[ψ ,ψ ]⊤.TheLagrangiandensityfortheDiractheory contains a mass term of the form
+                              L R
+                                                                             ¯                 †        †
+                                                               L=...+imψψ=...+im(ψ ψ +ψ ψ ).
+                                                                                               L R      R L
+                        Statements
+                         1. The above mass term is Lorentz invariant.
+                         2. mψ†ψ isLorentsinvariant.
+                                 L L
+                         3. mψ†ψ isLorentsinvariant.
+                                 R R
+                         (A) 1. True, 2. True, 3. True  (B) 1. True, 2. True, 3. False (C) 1. True, 2. False, 3. True (D) 1. True, 2. False, 3. False
+                         (E) 1. False, 2. True, 3. True (F) 1. False, 2. False, 3. False (G) 1. False, 2. True, 3. False (H) 1. False, 2. False, 3. True
+                                                                                   Optics
+                       TheLloyd mirror is a wavefront-splitting interferometer. It consists of a Ćat glass mirror that reĆects a portion of wavefront that
+                       comesfromanarrowslit. Anotherportionofthewavefrontproceedsdirectlytothescreen. Theinterferenceofthetwowavefronts
+                       form a set of bright and dark fringes that can be measured on the screen.
+                       In our problem, letŠs assume the mirror is placed at the plane x = 0 and illuminated by a spherical wave originating from the slit
+                       at location (x0,−z0) (where x0,z0 > 0). Using the paraxial approximation for a 1D spherical wave (y = 0),
+                                                                                                             2
+                                                                           exp[i(k(z +z )]           (x−x )
+                                                             E(x,z) = E                  0   exp ik        0
+                                                                          0    i(z +z )              2(z +z )
+                                                                                      0                      0
+                       Thesource illuminating the slit has a wavelength of 500nm in air. If the slit is positioned at x =1mm above the Ćat mirror, and
+                                                                                                                    0
+                       the screen is placed 1 meter away from the slit, please estimate the spacing of the fringes on the screen.
+                         (A) 25 mm                     (B) 500 mm                     (C) 0.75 mm                    (D) 100 mm
+                         (E) 0.25 mm                   (F) 250 mm                     (G) 0.50 mm                    (H) 1.00 mm
+                     Table 5: Examples of questions included in QuantumBench. From three Ąelds, examples are given for
+                     algebraic calculation, conceptual understanding, and numerical calculation.
+                     soning models achieve accuracy comparable to                           Figure 4 illustrates accuracy by question cate-
+                     large non-reasoning models even with fewer pa-                      gory for some frontier and mid-tier models from
+                     rameters. Figure 3(c) further conĄrms the role of                   each provider. In Optics, prior or non-reasoning
+                     reasoning by plotting performance as a function of                  models achieved only limited accuracy, whereas
+                     reasoning strength from minimal to high. Deeper                     large reasoning models approached 80%. Many
+                     reasoning consistently improves accuracy, with a                    Optics questions rely on diagrammatic or spatial
+                     marked drop at the minimal setting and substantial                  information such as lens placement, relative spac-
+                     gains even at the low setting.                                      ing, and propagation direction, which is difficult to
+                        This perspective is especially relevant to cost ef-              process linguistically and is considered one factor
+                     fectiveness. Figure 3(d) shows the relationship                     underlying this performance gap. Similarly, Ąelds
+                     between API inference cost and accuracy. No-                        such as String Theory, Quantum Field Theory, and
+                     tably, performance gains diminish sharply as cost                   Nuclear Physics demand relatively advanced do-
+                     increases. In other words, even small models, un-                   mainknowledgeandreasoning,resultinginalarger
+                     der medium reasoning and low-cost settings, can                     variance in accuracy across models.
+                     approach the accuracy of frontier models. These                        Figure 4(b) shows accuracy by question type.
+                     Ąndings indicate that, for AI tools supporting sci-                 There were no notable behavioral differences
+                     entiĄc research, adopting small- to medium-scale                    amongthemodelsacrossproblemtypes. GPT-5-
+                     models with moderate reasoning capabilities as                      high, which achieved the highest overall accuracy,
+                     the default conĄguration can achieve an effective                   consistently outperformed the other models across
+                     balance between performance and computational                       all three question types.
+                     cost.                                                                  Figure 5 shows the relationship between model
+                                                                                      5
+                     (a)
+                     (b)                                      (c)                      (d)
+                  Figure 3: Benchmark results. (a) Accuracy on all 769 problems. Blue indicates open-weight models,
+                  andgreenindicates closed models available only via API. Dark colors denote reasoning models, while
+                  light colors denote non-reasoning models. Tags appended to the names of reasoning models indicate
+                  the strength of reasoning. (b) Relationship between the number of model parameters and accuracy.
+                  Only open-weight models with publicly available parameter counts are shown. Blue circles represent
+                  reasoning models, and light-blue squares represent non-reasoning models. (c) Transition of accuracy
+                  whenvarying the reasoning strength for reasoning models. The ŞminimalŤ setting is available only for
+                  somemodels. (d) Relationship between average API usage cost per problem and accuracy. Only closed
+                  models, which require API usage, are shown. Green circles represent reasoning models, and light-green
+                  circles represent non-reasoning models.
+                  accuracyandbothdifficulty and expertise levels. In         manymodels,themagnitude of improvement was
+                  both categories, accuracy declined progressively           generally limited. Some of high-performing models,
+                  as the level increased. However, the decrease              such as Qwen3-Max, GPT-5-chat-latest, and GPT-
+                  wasrelatively moderate, and no statistically signif-       4.1 showed the most pronounced gains, whereas
+                  icant differences in performance were observed             manyprior models with low base performance ex-
+                  between difficulty levels 2 (easy) and 3 (standard)        hibited only minor improvements. This indicates
+                  or between expertise levels 1 (high school) and            thatmodelslackingsufficientbaselineabilitycannot
+                  2 (undergraduate). These Ąndings suggest that              achieve substantial improvement through simple
+                  errors on problems of medium-level difficulty or ex-       prompting-based reasoning techniques. The no-
+                  pertise are driven by factors other than difficulty or     table improvement observed in GPT-4.1 is likely
+                  expertise alone. Section 4.3 provides a detailed           dueto its ability to process very long contexts (ex-
+                  analysis of these error sources.                           ceeding one million tokens), allowing for extended
+                                                                             reasoning steps.
+                  4.2.    Zero-Shot CoT                                        Asmodelsarepromptedtoperformdeeperrea-
+                                                                             soning,thenumberofgeneratedtokensandassoci-
+                  Zero-shot CoT (Kojima et al., 2022) is a prompting         ated inference cost increase. Figure 6(b) illustrates
+                  method that directs the model to perform chain-of-         this rise in inference cost when zero-shot CoT is
+                  thought (CoT) reasoning without examples, thereby          applied. GPT-4.1, which achieved the largest accu-
+                  inducing step-by-step inference. We applied zero-          racy gain, also incurred a signiĄcant cost increase
+                  shot CoT to ten non-reasoning models and exam-             duetothegenerationoflong-formreasoningtraces.
+                  ined the resulting performance improvements.               In contrast, GPT-5-chat-latest also showed an in-
+                     Figure 6(a) shows the accuracy gains obtained           creaseincost, while the performance improvement
+                  with zero-shot CoT. Although accuracyimprovedfor           waslimited. Thisobservationimpliesthatquestions
+                                                                          6
+                                    (a)                              Quantum Mechanics (212)                                         (b)                  Numerical Calculation (144)
+                                             String Theory (31)                                    Quantum Computation(60)
+                                    Nuclear Physics (18)                                                   Quantum Chemistry (86)
+                                              Optics (157)                                             Quantum Field Theory (107)
+                                                                                                                                     Conceptual Understanding (50)            Algebraic Calculation (575)
+                                                       Mathematics (37)                  Photonics (57)
+                               Figure 4: Category-wise accuracy of the LLMs. (a) Accuracy by question domain. The numbers attached
+                               to the axis labels indicate the number of questions in each domain. (b) Accuracy by question type.
+                                (a)                                           (b)                                                                 (a)
+                               Figure 5: Accuracy of LLMs across (a) difficulty
+                               and (b) expertise levels. Each gray line shows the                                                                 (b)
+                               accuracy of an individual model, and the blue line
+                               showstheaverage accuracy across all models.
+                               that remain unsolved by high-performing models
+                               under zero-shot settings cannot be resolved simply
+                               by extending elementary reasoning procedures. In
+                               other words, current models still struggle to con-
+                               struct effective reasoning chains for complex sci-
+                               entiĄc questions. Because many quantum-domain                                                        Figure 6:             Performance changes with zero-shot
+                               tasksrequirelongstep-by-steptheoreticalanalyses,                                                     CoT. (a) Accuracy of non-reasoning models in the
+                               modelsmustbetrainedtodeveloprobustlong-form                                                          zero-shot setting, and the improvement with zero-
+                               reasoning steps.                                                                                     shot CoT. Blue indicates open-weight models, and
+                                                                                                                                    green indicates closed models. The red area rep-
+                               4.3.         Error Analysis                                                                          resents the improvement margin due to zero-shot
+                               Systematic analysis of common or characteristic er-                                                  CoT. (b) Transition of accuracy and inference cost
+                               rorpatternsinLLMssupportshigh-accuracydeploy-                                                        whenzero-shot CoT is applied.
+                               ment in practical applications. Figure 7 presents
+                               a representative case in which the experts rated                                                     conclusion that they do not.
+                               the question as level 2 (easy), yet the average ac-                                                      Failures to perform the necessary reasoning
+                               curacy across the evaluated LLMs was only about                                                      steps in scientiĄc contexts constitute one of the
+                               29.2%. The Ągure also displays the reasoning pro-                                                    primary sources of error on QuantumBench and
+                               cess produced by gpt-oss-120b-high. The task                                                         have also been documented in the prior work (Pan
+                               asks whether two operators constitute a complete                                                     et al., 2025). Other frequent causes include ex-
+                               set of commuting observables (CSCO). A correct                                                       cessive reliance on common sense at the expense
+                               solution requires verifying a sequence of neces-                                                     of the stated deĄnitions and assumptions, errors
+                               sary conditions and then concluding that the oper-                                                   in handling indices and signs, and failure to follow
+                               ators form a CSCO. The model skipped part of this                                                    instructions, which often leads the model to report
+                               veriĄcation and therefore produced the incorrect                                                     a different target quantity. Systematically mitigat-
+                                                                                                                               7
+                                                                                                  (a)                                 (b)
+                            Question
+                            Is {Lxy;Lz} a complete set of commuting observables? Here
+                            Lx and Ly are angular momentum operators corresponding to
+                            rotations around the x- and y-axis, and Lxy = L2 +L2.
+                                                                           x     y
+                            LLMresponse
+                            Set {Lxy;Lz}. Lxy = L2 +L2. Do they commute? Compute
+                                                   x     y
+                            [Lxy;Lz] = [L2 + L2;Lz] = [L2;Lz] + [L2;Lz]. (...) Sum
+                                           x    y           x          y
+                            cancels: iℏ(:::) − iℏ(:::) = 0. So they commute. Is {Lxy;Lz}
+                            a complete set of commuting observables? (...) So possibly
+                            yes a CSCO for angular momentum. However does Lxy have
+                            degenerate eigenvalues for diﬀerent j;m? (...) (j = 1;m =
+                            0) and (j = 2;m = ±2) give same Lxy = 2ℏ2. Therefore
+                            {Lxy;Lz} does not uniquely specify the state; not complete.           (c)                                 (d)
+                              ਤ1 Example prompt for quantum code generation.
+                       Figure 7: An example of incorrect responses by
+                       LLMs. We extract a snippet of the question and
+                       the reasoning process. The red text indicates the
+                       errors in the reasoning. The LLM claims incom-                             Figure 8: Differences in difficulty and expertise rat-
+                       pleteness by presenting an example where Lxy                               ings betweenhumansandtheLLM.(a,c)Heatmap
+                       takes the same value, but since Lz differs, the ex-                        comparing human and LLM ratings. (b, d) Distribu-
+                       ample is not a valid counterexample.                                       tion of human and LLM ratings.
+                       ing these tendencies is essential for building more                        Ąed such biases, leading the LLM to overestimate
+                       accurate and trustworthy AI systems.                                       the difficulty and degree of expertise required even
+                       4.4.      Bias Analysis for LLM-as-a-Judge                                 for fundamentally elementary problems.
+                       Weexaminedwhether an LLM can appropriately                                                      5.     Conclusion
+                       judge the level of difficulty and expertise. We used
+                       GPT-5-chat-latest to assign difficulty and expertise
+                       levels to each QuantumBench question and com-                              In this study, we introduced QuantumBench, a
+                       pared these labels with human annotations. The                             benchmark for evaluating LLMs in the quan-
+                       decisioncriteria embeddedinthepromptsmatched                               tum domain, constructed from publicly avail-
+                       those in Tables 3 and 4.                                                   able lecture materials.             The dataset comprises
+                           Figure 8 summarizes the correspondence be-                             769 undergraduate-level multiple-choice problems
+                       tween LLM and human labels. In the difficulty an-                          across nine areas spanning core and related quan-
+                                                         1                                        tum Ąelds. Using this benchmark, we evaluated
+                       notation task, the LLM rated the questions as more
+                       difficult than human experts: while humans placed                          existing models, including current frontier models,
+                       most questions at Level 2 (easy) or Level 3 (stan-                         and analyzed performance by model type, reason-
+                       dard),theLLMŠslabelswereroughlyuniformacross                               ingstrength,andcomputationalcost. Wefoundthat
+                       Levels 2Ű4. A similar trend held in the expertise                          small to medium models can approach the accu-
+                       annotation task: the LLM tended to judge the ques-                         racy of frontier models when prompted with moder-
+                       tions as requiring higher levels of expertise than                         ate reasoning. We also observed that performance
+                       humanexperts.                                                              improvements diminish with increasing reasoning
+                           Several factors may account for these discrepan-                       strength and clariĄed that practical performance
+                       cies. First, while the LLM appears to recognize that                       can be attained even under low-cost settings.
+                       most problems do not fall into the extreme difficulty                         QuantumBench is the Ąrst benchmark special-
+                       levels (Levels 1 and 5), it may have failed to reli-                       ized for LLM evaluation in the quantum domain and
+                       ably distinguish among the intermediate categories                         supports the advancement of LLM use in quantum
+                       (Levels 2Ű4). Consequently, the model likely as-                           science. However, because the dataset is drawn
+                       signedlabels within that range uniformly at random.                        from undergraduate and graduate course materi-
+                       In addition, multiple biases have been noted when                          als, it does not fully capture the difficulty, quality,
+                       using LLMs as judges. For example, a verbosity                             or formats characteristic of cutting-edge research
+                       biashasbeenobserved,inwhichlongerresponses                                 and development. Many real-world research tasks
+                       tend to be rated more favorably (Zheng et al., 2023;                       are not multiple choice but instead require goal
+                       Yeetal., 2024). In the evaluation of mathematical                          speciĄcation, procedural decomposition, veriĄca-
+                       content, judgments often reĆect stylistic features                         tion, and interpretation. To develop more sophisti-
+                       rather than substantive correctness (Stephan et al.,                       cated AI scientists, future benchmarks should in-
+                       2024). Given that many QuantumBench items con-                             clude more practical tasks such as open-ended
+                       tain detailed problem descriptions and numerous                            descriptive questions, structured task decomposi-
+                       equations, these characteristics may have ampli-                           tion, and systematic experiment planning.
+                                                                                               8
+                                  6.    Limitations                           2023. GPT-4 technical report. arXiv preprint
+                  Because the dataset was constructed from course             arXiv:2303.08774.
+                  materials that are publicly available on the web, the    Sandhini Agarwal, Lama Ahmad, Jason Ai, Sam
+                  underlyingsourcesandrelatedresourcesmayhave                 Altman, Andy Applebaum, Edwin Arbus, Rahul K
+                  beenincluded in the training corpora of LLMs. In            Arora, Yu Bai, Bowen Baker, Haiming Bao, et al.
+                  mostofthesesources,however,problemsandsolu-                 2025. gpt-oss-120b & gpt-oss-20b model card.
+                  tions are distributed in separate Ąles, which makes         arXiv preprint arXiv:2508.10925.
+                  it difficult for an LLM to memorize exact problem-       SamuelRBowman,JeeyoonHyun,EthanPerez,
+                  answer pairs. In addition, we have edited the                                                                ˙
+                  problem statements and newly created all choices.           Edwin Chen, Craig Pettit, Scott Heiner, Kamile
+                                                                                     ¯ ˙
+                  These processes mitigate training-data contamina-           Luko²iute, Amanda Askell, Andy Jones, Anna
+                  tion and keep the dataset suitable for evaluation.          Chen, et al. 2022. Measuring progress on scal-
+                    Wefurther evaluated model performance on a                able oversight for large language models. arXiv
+                  Japaneseversion of the benchmark and found that             preprint arXiv:2211.03540.
+                  results were very similar to those on the English        TomBrown,BenjaminMann,NickRyder,Melanie
+                  original, indicating that models are not merely re-         Subbiah, Jared D Kaplan, Prafulla Dhariwal,
+                  calling memorized questionŰanswer pairs.                    Arvind Neelakantan, Pranav Shyam, Girish Sas-
+                    Becauseenlisting domain experts across all sub-           try, Amanda Askell, et al. 2020. Language mod-
+                  Ąelds in the dataset was infeasible, we did not mea-        els are few-shot learners. Advances in neural
+                  sure human accuracy on the benchmark. Instead,              information processing systems, 33:1877Ű1901.
+                  the physics experts assigned categorical ratings for
+                  difficulty and expertise level. From the standpoint      Shuxiang Cao, Zijian Zhang, Mohammed Al-
+                  of evaluating LLM capabilities, establishing a hu-          ghadeer, Simone D Fasciati, Michele Piscitelli,
+                  manbaseline remains desirable and is deferred to            Mustafa Bakr, Peter Leek, and Alán Aspuru-
+                  future work.                                                Guzik. 2025. Automating quantum computing
+                             7.    Ethics Statements                          laboratory experiments with an agent-based AI
+                                                                              framework. Patterns.
+                  7.1.   License                                           Delft University of Technology. TU Delft Open-
+                  All source lecture materials were distributed under         CourseWare. https://ocw.tudelft.nl/.
+                  the CC BY-NC-SA license, and the dataset created         Abhimanyu Dubey, Abhinav Jauhri, Abhinav
+                  in this study is distributed under the same license.        Pandey, Abhishek Kadian, Ahmad Al-Dahle,
+                  Thetitle of each source lecture, the lecturerŠs name,       Aiesha Letman, Akhil Mathur, Alan Schelten,
+                  andthelectureURLareexplicitlyincludedasmeta-                AmyYang,AngelaFan,etal.2024. TheLlama
+                  data within the dataset.                                    3 herd of models. arXiv e-prints, pages arXivŰ
+                  7.2.   HumanAnnotations                                     2407.
+                  Theannotation was conducted by three of the au-          Nicolas Dupuis, Luca Buratti, Sanjay Vishwakarma,
+                  thors. Prior to the task, we held a meeting to share        Aitana Viudes Forrat, David Kremer, Ismael
+                  the details of the annotation process and provided          Faro, Ruchir Puri, and Juan Cruz-Benito. 2024.
+                  a comprehensive annotation guideline to standard-           Qiskit code assistant: Training LLMs for gener-
+                  ize the evaluation criteria and working procedures.         ating quantum computing code. In 2024 IEEE
+                  The annotators understood and agreed that their             LLMAidedDesignWorkshop(LAD),pages1Ű4.
+                  workwouldbereleasedaspartofthedataset. Dur-                 IEEE.
+                  ing the annotation process, we communicated with         SteffenEger,YongCao,JenniferDŠSouza,Andreas
+                  the annotators as needed to discuss how to handle           Geiger, Christian Greisinger, Stephanie Gross,
+                  irregular cases.                                            Yufang Hou, Brigitte Krenn, Anne Lauscher,
+                                                                              Yizhi Li, et al. 2025. Transforming science with
+                       8.    Bibliographical References                       large language models: A survey on AI-assisted
+                                                                              scientiĄc discovery, experimentation, content
+                                                                              generation, and evaluation.        arXiv preprint
+                  Josh Achiam, Steven Adler, Sandhini Agar-                   arXiv:2502.05151.
+                    wal,   Lama Ahmad, Ilge Akkaya, Floren-                Gemini Team. 2023. Gemini: a family of highly
+                    cia Leoni Aleman, Diogo Almeida, Janko Al-                capable multimodal models.         arXiv preprint
+                    tenschmidt,SamAltman,ShyamalAnadkat,etal.                 arXiv:2312.11805.
+                                                                         9
+                  Daya Guo, Dejian Yang, Haowei Zhang, Junxiao              judges on mathematical reasoning tasks. arXiv
+                    Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu,                preprint arXiv:2409.04168.
+                    Shirong Ma, Peiyi Wang, Xiao Bi, et al. 2025.        Hugo Touvron, Thibaut Lavril, Gautier Izacard,
+                    DeepSeek-R1: Incentivizing reasoning capabil-           Xavier Martinet, Marie-Anne Lachaux, Timothée
+                    ity in LLMs via reinforcement learning. arXiv           Lacroix, Baptiste Rozière, Naman Goyal, Eric
+                    preprint arXiv:2501.12948.                              Hambro, Faisal Azhar, et al. 2023. Llama: Open
+                  Ali Javadi-Abhari, Matthew Treinish, Kevin Krsulich,      and efficient foundation language models. arXiv
+                    Christopher J. Wood, Jake Lishman, Julien               preprint arXiv:2302.13971.
+                    Gacon, Simon Martiel, Paul D. Nation, Lev S.         Yutaro Yamada, Robert Tjarko Lange, Cong Lu,
+                    Bishop, Andrew W. Cross, Blake R. Johnson,              Shengran Hu, Chris Lu, Jakob Foerster, Jeff
+                    andJayM.Gambetta.2024. Quantumcomput-                   Clune, and David Ha. 2025. The ai scientist-
+                    ing with Qiskit. arXiv preprint arXiv:2405.08810.       v2: Workshop-level automated scientiĄc dis-
+                  Jared Kaplan, Sam McCandlish, Tom Henighan,               covery via agentic tree search. arXiv preprint
+                    Tom B Brown, Benjamin Chess, Rewon Child,               arXiv:2504.08066.
+                    Scott Gray, Alec Radford, Jeffrey Wu, and Dario
+                    Amodei. 2020. Scaling laws for neural language       An Yang, Anfeng Li, Baosong Yang, Beichen
+                    models. arXiv preprint arXiv:2001.08361.                Zhang, Binyuan Hui, Bo Zheng, Bowen Yu,
+                  Kimi Team. 2025. Kimi K2: Open agentic intelli-           ChangGao,ChengenHuang,ChenxuLv,etal.
+                    gence. arXiv preprint arXiv:2507.20534.                 2025. Qwen3 technical report. arXiv preprint
+                                                                            arXiv:2505.09388.
+                  Takeshi Kojima, Shixiang Shane Gu, Machel Reid,        Jiayi Ye, YanboWang,YueHuang,DongpingChen,
+                    Yutaka Matsuo, and Yusuke Iwasawa. 2022.                Qihui Zhang, Nuno Moniz, Tian Gao, Werner
+                    Large language models are zero-shot reason-             Geyer, Chao Huang, Pin-Yu Chen, et al. 2024.
+                    ers. Advances in neural information processing          Justice or prejudice? quantifying biases in llm-
+                    systems, 35:22199Ű22213.                                as-a-judge. arXiv preprint arXiv:2410.02736.
+                  LibreTexts. LibreTexts. https://libretexts.            Lianmin Zheng, Wei-Lin Chiang, Ying Sheng,
+                    org/.                                                   Siyuan Zhuang, Zhanghao Wu, Yonghao
+                  Chris Lu, Cong Lu, Robert Tjarko Lange, Jakob             Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric
+                    Foerster, Jeff Clune, and David Ha. 2024. The           Xing, et al. 2023. Judging LLM-as-a-judge with
+                    ai scientist:  Towards fully automated open-            MT-BenchandChatbotArena. Advancesinneu-
+                    ended scientiĄc discovery.        arXiv preprint        ral information processing systems, 36:46595Ű
+                    arXiv:2408.06292.                                       46623.
+                  LaurensvanderMaatenandGeoffreyHinton.2008.             Yunheng Zou, Austin H Cheng, Abdulrahman Al-
+                    Visualizing data using t-sne. Journal of machine        dossary, Jiaru Bai, Shi Xuan Leong, Jorge Arturo
+                    learning research, 9(Nov):2579Ű2605.                    Campos-Gonzalez-Angulo, Changhyeok Choi,
+                                                                            Cher Tian Ser, Gary Tom, Andrew Wang, et al.
+                  Massachusetts Institute of Technology. MIT Open-          2025. El agente: An autonomousagentforquan-
+                    CourseWare. https://ocw.mit.edu/.                       tum chemistry. Matter, 8(7).
+                  Haining Pan, Nayantara Mudur, William Taranto,
+                    Maria Tikhanovskaya, Subhashini Venugopalan,           9.   LanguageResourceReferences
+                    YasamanBahri, Michael P Brenner, and Eun-Ah
+                    Kim. 2025. Quantum many-body physics calcu-
+                    lations with large language models. Communi-
+                    cations Physics, 8(1):49.                            Hendrycks, Dan and Burns, Collin and Basart,
+                  Samuel Schmidgall, Yusheng Su, Ze Wang, Xi-               StevenandZou,AndyandMazeika,Mantasand
+                    meng Sun, Jialian Wu, Xiaodong Yu, Jiang                Song, Dawn and Steinhardt, Jacob. 2020. Mea-
+                    Liu, Michael Moor, Zicheng Liu, and Emad Bar-           suring massive multitask language understand-
+                    soum. 2025.     Agent laboratory: Using LLM             ing.
+                    agents as research assistants. arXiv preprint        Hendrycks, Dan and Burns, Collin and Kadavath,
+                    arXiv:2501.04227.                                       Saurav and Arora, Akul and Basart, Steven and
+                  Andreas Stephan, Dawei Zhu, Matthias Aÿen-                Tang, Eric and Song, Dawn and Steinhardt, Ja-
+                    macher, Xiaoyu Shen, and Benjamin Roth. 2024.           cob. 2021. Measuring mathematical problem
+                    Fromcalculationtoadjudication: ExaminingLLM             solving with the MATH dataset.
+                                                                      10
+              Jin, Qiao and Dhingra, BhuwanandLiu,Zhengping
+                and Cohen, William W and Lu, Xinghua. 2019.
+                PubMedQA:Adatasetforbiomedicalresearch
+                question answering.
+              Shlomo Kashani. 2024.   QuantumLLMInstruct:
+                A 500k LLM instruction-tuning dataset with
+                problem-solution pairs for quantum computing.
+                arXiv preprint arXiv:2412.20956.
+              Mikuriya, Taku and Ishigaki, Tatsuya and Minami,
+                Shunya and Kadowaki, Tadashi and Suzuki,
+                Yohichi and Naito, Shun and Takada, Shunya
+                and Kato, Takumi and Baseda, Tamotsu and
+                Yamadaand,ReoandTakamura,Hiroya.2025.
+                QCoderBenchmark: Bridging language gener-
+                ation and quantum hardware through simulator-
+                based feedback.
+              Phan,LongandGatti,AliceandHan,ZiwenandLi,
+                Nathaniel and Hu, Josephina and Zhang, Hugh
+                andZhang,ChenBoCalvinandShaaban,Mo-
+                hamedandLing,JohnandShi,Seanandothers.
+                2025. HumanityŠs last exam.
+              Rein, David and Hou, Betty Li and Stickland, Asa
+                Cooper and Petty, Jackson and Pang, Richard
+                Yuanzhe and Dirani, Julien and Michael, Ju-
+                lian and Bowman, Samuel R. 2024. GPQA: A
+                graduate-level google-proof Q&A benchmark.
+              Vishwakarma, Sanjay and Harkins, Francis
+                and Golecha, Siddharth and Bajpe, Vishal
+                Sharathchandra and Dupuis, Nicolas and Bu-
+                ratti, Luca and Kremer, David and Faro, Ismael
+                and Puri, Ruchir and Cruz-Benito, Juan. 2024.
+                Qiskit HumanEval: An evaluation benchmark for
+                quantum code generative models. IEEE.
+              Wang, Yubo and Ma, Xueguang and Zhang, Ge
+                andNi, Yuansheng and Chandra, Abhranil and
+                Guo, Shiguang and Ren, Weiming and Arulraj,
+                AaranandHe,XuanandJiang,Ziyanandothers.
+                2024.MMLU-Pro: Amorerobustandchallenging
+                multi-task language understanding benchmark.
+              Zhu, Minhui and Tian, Minyang and Yang, Xi-
+                aocheng and Zhou, Tianci and Zhu, Penghao
+                and Chertkov, Eli and Liu, Shengyan and Du,
+                Yufeng and Yuan, Lifan and Ji, Ziming and oth-
+                ers. 2025. Probing the Critical Point (CritPt) of AI
+                Reasoning: a Frontier Physics Research Bench-
+                mark.
+                                                         11
