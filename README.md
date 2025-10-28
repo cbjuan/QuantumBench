@@ -1,12 +1,12 @@
 # QuantumBench
 <div align="center">
-  <img src="images/papertitle.png" width="80%" alt="QuantumBench" />
+  <img src="images/fig_title.svg" width="100%" alt="QuantumBench" />
 </div>
-<hr>
 
 <p align="center">
   <a href="https://arxiv.org/abs/2501.16986"><b>arxiv Paper Link</b></a>
 </p>
+<hr>
 
 <div align="center">
   <img src="images/fig_acc.svg" width="95%" alt="QuantumBench" />
