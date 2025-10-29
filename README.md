@@ -79,7 +79,8 @@ uv venv
 source .venv/bin/activate
 
 # install project dependencies (uses pyproject.toml)
-uv pip install -e .
+uv pip compile pyproject.toml > requirements.txt
+uv pip sync requirements.txt
 ```
 
 Set `OPENAI_API_KEY` in your environment before invoking the OpenAI client. If you plan to route requests through OpenRouter, also export `OPENROUTER_API_KEY`.
