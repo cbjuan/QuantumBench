@@ -205,6 +205,58 @@ Level 3                     158               44      27.85           3.12
 Level 4                      11                1       9.09           3.85
 ```
 
+## Comparing Prompt Types
+
+Want to know if Chain-of-Thought (CoT) prompting performs better than standard zero-shot? You can compare both approaches:
+
+### Automated Comparison
+
+Run both prompt types and generate a comparison report:
+
+```bash
+# Edit the script first to add your API credentials
+bash examples/compare_prompt_types.sh
+```
+
+This will:
+1. Run the benchmark with `zeroshot` prompting
+2. Run the benchmark with `zeroshot-CoT` prompting
+3. Generate a detailed comparison report showing:
+   - Overall pass rate differences
+   - Performance by difficulty and expertise levels
+   - Token usage comparison (CoT uses ~2x tokens)
+   - Which questions each approach answers correctly
+   - Cost-benefit recommendations
+
+### Manual Comparison
+
+If you already have results from different runs:
+
+```bash
+python code/compare_prompts.py \
+    --results1 outputs/zeroshot_run/quantumbench_results_model_0.csv \
+    --results2 outputs/cot_run/quantumbench_results_model_0.csv \
+    --label1 "Zero-Shot" \
+    --label2 "Zero-Shot CoT"
+```
+
+### Understanding the Comparison
+
+The comparison report helps you decide which prompt type is worth using:
+
+```
+OVERALL STATISTICS
+Metric               Zero-Shot  Zero-Shot CoT  Difference
+Pass Rate (%)           56.17          60.86       +4.69
+Total Tokens           850000        1700000     +850000
+
+RECOMMENDATIONS
+  ✓ Zero-Shot CoT shows significant improvement (+4.69%)
+  ⚠ Consider whether the performance gain justifies 100% more tokens
+```
+
+**See [COMPARISON_GUIDE.md](COMPARISON_GUIDE.md) for detailed guidance on interpreting results and making decisions.**
+
 ## API Endpoint Configuration
 
 You need to provide the correct base URL for your Qiskit Code Assistant API endpoint. Please refer to the official IBM Quantum documentation:

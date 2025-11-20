@@ -127,6 +127,24 @@ This shows the model performs better on easier questions:
 - 84% pass rate on Level 1 (easiest)
 - Only 20% on Level 5 (hardest)
 
+## Comparing Prompt Types (Zero-Shot vs CoT)
+
+Want to know if Chain-of-Thought reasoning improves performance? Run both and compare:
+
+```bash
+# Edit the script to add your API credentials first
+bash examples/compare_prompt_types.sh
+```
+
+This automatically:
+1. Runs benchmark with zero-shot prompting
+2. Runs benchmark with chain-of-thought prompting
+3. Generates a comparison report
+
+**Note**: CoT takes ~2x longer and uses ~2x tokens, but may improve accuracy on complex problems.
+
+See [COMPARISON_GUIDE.md](COMPARISON_GUIDE.md) for detailed guidance on interpreting results.
+
 ## Re-analyzing Existing Results
 
 If you want to re-run the analysis on existing results:
