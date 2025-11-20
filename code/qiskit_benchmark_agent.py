@@ -5,11 +5,15 @@ Qiskit Code Assistant Benchmark Agent
 This script runs the QuantumBench benchmark against the Qiskit Code Assistant OpenAI API-compatible endpoints
 and analyzes the results based on difficulty and expertise levels.
 
+Get API base URL and model name from IBM Quantum documentation:
+- https://qiskit-code-assistant.quantum.ibm.com/docs
+- https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
+
 Usage:
     python code/qiskit_benchmark_agent.py \
         --api-key YOUR_IBM_CLOUD_API_KEY \
-        --base-url https://qiskit-code-assistant.quantum.ibm.com/v1 \
-        --model-name qiskit-code-assistant \
+        --base-url YOUR_QISKIT_API_BASE_URL \
+        --model-name YOUR_MODEL_NAME \
         --out-dir ./outputs/qiskit_run_$(date +"%Y%m%d_%H%M%S") \
         --num-workers 4 \
         --analyze
@@ -28,19 +32,23 @@ def parse_args():
         description='Qiskit Code Assistant Benchmark Agent',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+Get base URL and model name from IBM Quantum documentation:
+  - https://qiskit-code-assistant.quantum.ibm.com/docs
+  - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
+
 Examples:
   # Run benchmark with Qiskit Code Assistant
   python code/qiskit_benchmark_agent.py \\
       --api-key YOUR_IBM_CLOUD_API_KEY \\
-      --base-url https://qiskit-code-assistant.quantum.ibm.com/v1 \\
-      --model-name qiskit-code-assistant \\
+      --base-url YOUR_QISKIT_API_BASE_URL \\
+      --model-name YOUR_MODEL_NAME \\
       --num-workers 4
 
   # Run with custom configuration
   python code/qiskit_benchmark_agent.py \\
       --api-key YOUR_API_KEY \\
-      --base-url https://custom-endpoint.com/v1 \\
-      --model-name granite-qiskit \\
+      --base-url YOUR_QISKIT_API_BASE_URL \\
+      --model-name YOUR_MODEL_NAME \\
       --prompt-type zeroshot-CoT \\
       --analyze
         """
@@ -57,14 +65,14 @@ Examples:
     api_group.add_argument(
         '--base-url',
         type=str,
-        help='Base URL for Qiskit Code Assistant API',
-        default='https://qiskit-code-assistant.quantum.ibm.com/v1'
+        help='Base URL for Qiskit Code Assistant API (obtain from IBM Quantum docs)',
+        required=True
     )
     api_group.add_argument(
         '--model-name',
         type=str,
-        help='Model name to use (e.g., qiskit-code-assistant, granite-qiskit)',
-        default='qiskit-code-assistant'
+        help='Model name to use (obtain from IBM Quantum docs)',
+        required=True
     )
 
     # Benchmark Configuration

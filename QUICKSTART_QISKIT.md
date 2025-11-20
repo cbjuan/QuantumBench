@@ -30,11 +30,14 @@ pip install openai pandas tqdm
 
 ### Option 1: Using the Example Script (Easiest)
 
+**Note:** You need to edit `examples/run_qiskit_agent_example.sh` first to add your actual API base URL and model name from IBM Quantum documentation.
+
 ```bash
 # Set your API key
 export OPENAI_API_KEY="your_ibm_cloud_api_key_here"
 
-# Run the example script
+# Edit the example script first to add your base URL and model name
+# Then run:
 bash examples/run_qiskit_agent_example.sh
 ```
 
@@ -49,11 +52,15 @@ That's it! The script will:
 export OPENAI_API_KEY="your_ibm_cloud_api_key_here"
 
 python code/qiskit_benchmark_agent.py \
-    --base-url https://qiskit-code-assistant.quantum.ibm.com/v1 \
-    --model-name qiskit-code-assistant \
+    --base-url YOUR_QISKIT_API_BASE_URL \
+    --model-name YOUR_MODEL_NAME \
     --num-workers 4 \
     --analyze
 ```
+
+Replace `YOUR_QISKIT_API_BASE_URL` and `YOUR_MODEL_NAME` with values from IBM Quantum documentation:
+- https://qiskit-code-assistant.quantum.ibm.com/docs
+- https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
 
 ### Option 3: Custom Configuration
 
@@ -139,15 +146,11 @@ bash examples/analyze_existing_results.sh outputs/qiskit_run_20250120/quantumben
 
 ### API Endpoints
 
-**IBM Quantum Cloud:**
-```bash
---base-url https://quantum.cloud.ibm.com/api/qiskit-code-assistant/v1
-```
+You need to obtain the correct base URL from IBM Quantum documentation:
+- https://qiskit-code-assistant.quantum.ibm.com/docs
+- https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
 
-**Qiskit Code Assistant:**
-```bash
---base-url https://qiskit-code-assistant.quantum.ibm.com/v1
-```
+The endpoint should be an OpenAI-compatible API URL provided by IBM Quantum.
 
 ### Prompt Types
 

@@ -42,11 +42,14 @@ export OPENAI_API_KEY="your_ibm_cloud_api_key_here"
 
 ```bash
 python code/qiskit_benchmark_agent.py \
-    --base-url https://qiskit-code-assistant.quantum.ibm.com/v1 \
-    --model-name qiskit-code-assistant \
+    --base-url YOUR_QISKIT_API_BASE_URL \
+    --model-name YOUR_MODEL_NAME \
     --num-workers 4 \
     --analyze
 ```
+
+Replace `YOUR_QISKIT_API_BASE_URL` with the actual endpoint from IBM Quantum documentation.
+Replace `YOUR_MODEL_NAME` with the model identifier from IBM Quantum.
 
 This will:
 1. Run the benchmark against Qiskit Code Assistant
@@ -61,8 +64,8 @@ This will:
 # Run with automatic analysis
 python code/qiskit_benchmark_agent.py \
     --api-key YOUR_IBM_CLOUD_API_KEY \
-    --base-url https://qiskit-code-assistant.quantum.ibm.com/v1 \
-    --model-name qiskit-code-assistant \
+    --base-url YOUR_QISKIT_API_BASE_URL \
+    --model-name YOUR_MODEL_NAME \
     --analyze
 ```
 
@@ -71,8 +74,8 @@ python code/qiskit_benchmark_agent.py \
 ```bash
 python code/qiskit_benchmark_agent.py \
     --api-key YOUR_API_KEY \
-    --base-url https://qiskit-code-assistant.quantum.ibm.com/v1 \
-    --model-name qiskit-code-assistant \
+    --base-url YOUR_QISKIT_API_BASE_URL \
+    --model-name YOUR_MODEL_NAME \
     --prompt-type zeroshot-CoT \
     --out-dir ./outputs/my_custom_run \
     --num-workers 8 \
@@ -83,8 +86,8 @@ python code/qiskit_benchmark_agent.py \
 
 #### API Configuration
 - `--api-key`: IBM Cloud API key (or set `OPENAI_API_KEY` environment variable)
-- `--base-url`: Base URL for Qiskit Code Assistant API (default: `https://qiskit-code-assistant.quantum.ibm.com/v1`)
-- `--model-name`: Model name to use (default: `qiskit-code-assistant`)
+- `--base-url`: Base URL for Qiskit Code Assistant API (obtain from IBM Quantum documentation)
+- `--model-name`: Model name to use (obtain from IBM Quantum documentation)
 
 #### Benchmark Configuration
 - `--problem-name`: Problem name for output files (default: `quantumbench`)
@@ -204,20 +207,16 @@ Level 4                      11                1       9.09           3.85
 
 ## API Endpoint Configuration
 
-### IBM Quantum Cloud
+You need to provide the correct base URL for your Qiskit Code Assistant API endpoint. Please refer to the official IBM Quantum documentation:
+- https://qiskit-code-assistant.quantum.ibm.com/docs
+- https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
+
+Example usage:
 ```bash
---base-url https://quantum.cloud.ibm.com/api/qiskit-code-assistant/v1
+--base-url YOUR_QISKIT_API_BASE_URL
 ```
 
-### Qiskit Code Assistant
-```bash
---base-url https://qiskit-code-assistant.quantum.ibm.com/v1
-```
-
-### Custom Endpoint
-```bash
---base-url https://your-custom-endpoint.com/v1
-```
+The base URL should be the OpenAI-compatible endpoint provided by IBM Quantum for the Qiskit Code Assistant service.
 
 ## Prompt Types
 

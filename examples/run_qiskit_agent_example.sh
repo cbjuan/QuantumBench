@@ -1,9 +1,15 @@
 #!/bin/bash
 # Example script for running the Qiskit Code Assistant Benchmark Agent
 #
+# IMPORTANT: Edit the BASE_URL and MODEL_NAME variables below with your actual values
+#            from IBM Quantum documentation:
+#            - https://qiskit-code-assistant.quantum.ibm.com/docs
+#            - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
+#
 # Usage:
-#   1. Set your API key: export OPENAI_API_KEY="your_ibm_cloud_api_key"
-#   2. Run this script: bash examples/run_qiskit_agent_example.sh
+#   1. Edit BASE_URL and MODEL_NAME below
+#   2. Set your API key: export OPENAI_API_KEY="your_ibm_cloud_api_key"
+#   3. Run this script: bash examples/run_qiskit_agent_example.sh
 
 set -e
 
@@ -19,11 +25,21 @@ if [ -z "$OPENAI_API_KEY" ]; then
     exit 1
 fi
 
-# Configuration
-BASE_URL="https://qiskit-code-assistant.quantum.ibm.com/v1"
-MODEL_NAME="qiskit-code-assistant"
+# Configuration - EDIT THESE VALUES
+# Get the correct BASE_URL and MODEL_NAME from IBM Quantum documentation
+BASE_URL="YOUR_QISKIT_API_BASE_URL"  # e.g., "https://example.com/v1"
+MODEL_NAME="YOUR_MODEL_NAME"          # e.g., "granite-qiskit-3.0"
 PROMPT_TYPE="zeroshot"
 NUM_WORKERS=4
+
+# Validate configuration
+if [ "$BASE_URL" = "YOUR_QISKIT_API_BASE_URL" ] || [ "$MODEL_NAME" = "YOUR_MODEL_NAME" ]; then
+    echo "Error: Please edit this script and set BASE_URL and MODEL_NAME"
+    echo "Get these values from IBM Quantum documentation:"
+    echo "  - https://qiskit-code-assistant.quantum.ibm.com/docs"
+    echo "  - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api"
+    exit 1
+fi
 
 # Generate timestamp for output directory
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
