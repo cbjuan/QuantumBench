@@ -1,0 +1,223 @@
+name: Qiskit Code Assistant Benchmark
+
+on:
+  # Manual trigger with options
+  workflow_dispatch:
+    inputs:
+      prompt_type:
+        description: 'Prompt type to use'
+        required: true
+        type: choice
+        options:
+          - zeroshot
+          - zeroshot-CoT
+          - both
+        default: 'zeroshot'
+      num_workers:
+        description: 'Number of parallel workers'
+        required: false
+        type: number
+        default: 4
+      run_analysis:
+        description: 'Run analysis after benchmark'
+        required: false
+        type: boolean
+        default: true
+
+  # Optional: Schedule to run periodically
+  # schedule:
+  #   - cron: '0 0 * * 0'  # Run every Sunday at midnight
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    # Ensure workflow runs are only visible to repo collaborators
+    # This is automatic for private repos
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai pandas tqdm
+
+      - name: Extract dataset
+        run: |
+          unzip -P 'do_not_use_quantumbench_for_training' quantumbench.zip
+
+      - name: Run benchmark - Zero-Shot
+        if: ${{ github.event.inputs.prompt_type == 'zeroshot' || github.event.inputs.prompt_type == 'both' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.QISKIT_API_KEY }}
+        run: |
+          echo "::add-mask::${{ secrets.QISKIT_API_KEY }}"
+
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          OUT_DIR="./outputs/gh_zeroshot_${TIMESTAMP}"
+
+          python code/qiskit_benchmark_agent.py \
+            --base-url "${{ secrets.QISKIT_API_BASE_URL }}" \
+            --model-name "${{ secrets.QISKIT_MODEL_NAME }}" \
+            --prompt-type zeroshot \
+            --out-dir "${OUT_DIR}" \
+            --num-workers ${{ github.event.inputs.num_workers || 4 }} \
+            ${{ github.event.inputs.run_analysis && '--analyze' || '' }}
+
+          # Save output directory for artifacts
+          echo "ZEROSHOT_OUT_DIR=${OUT_DIR}" >> $GITHUB_ENV
+
+      - name: Run benchmark - Zero-Shot CoT
+        if: ${{ github.event.inputs.prompt_type == 'zeroshot-CoT' || github.event.inputs.prompt_type == 'both' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.QISKIT_API_KEY }}
+        run: |
+          echo "::add-mask::${{ secrets.QISKIT_API_KEY }}"
+
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          OUT_DIR="./outputs/gh_cot_${TIMESTAMP}"
+
+          python code/qiskit_benchmark_agent.py \
+            --base-url "${{ secrets.QISKIT_API_BASE_URL }}" \
+            --model-name "${{ secrets.QISKIT_MODEL_NAME }}" \
+            --prompt-type zeroshot-CoT \
+            --out-dir "${OUT_DIR}" \
+            --num-workers ${{ github.event.inputs.num_workers || 4 }} \
+            ${{ github.event.inputs.run_analysis && '--analyze' || '' }}
+
+          # Save output directory for artifacts
+          echo "COT_OUT_DIR=${OUT_DIR}" >> $GITHUB_ENV
+
+      - name: Compare results
+        if: ${{ github.event.inputs.prompt_type == 'both' }}
+        run: |
+          RESULTS_ZEROSHOT=$(find "${ZEROSHOT_OUT_DIR}" -name "quantumbench_results_*.csv" | head -1)
+          RESULTS_COT=$(find "${COT_OUT_DIR}" -name "quantumbench_results_*.csv" | head -1)
+
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          COMPARISON_DIR="./outputs/gh_comparison_${TIMESTAMP}"
+          mkdir -p "${COMPARISON_DIR}"
+
+          python code/compare_prompts.py \
+            --results1 "${RESULTS_ZEROSHOT}" \
+            --results2 "${RESULTS_COT}" \
+            --label1 "Zero-Shot" \
+            --label2 "Zero-Shot CoT" \
+            --output-file "${COMPARISON_DIR}/comparison_report.txt"
+
+          echo "COMPARISON_DIR=${COMPARISON_DIR}" >> $GITHUB_ENV
+
+      - name: Prepare artifacts summary
+        run: |
+          SUMMARY_FILE="./outputs/run_summary.txt"
+          mkdir -p ./outputs
+
+          echo "====================================" > ${SUMMARY_FILE}
+          echo "Benchmark Run Summary" >> ${SUMMARY_FILE}
+          echo "====================================" >> ${SUMMARY_FILE}
+          echo "" >> ${SUMMARY_FILE}
+          echo "Workflow Run: ${{ github.run_number }}" >> ${SUMMARY_FILE}
+          echo "Triggered by: ${{ github.actor }}" >> ${SUMMARY_FILE}
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> ${SUMMARY_FILE}
+          echo "Prompt Type: ${{ github.event.inputs.prompt_type }}" >> ${SUMMARY_FILE}
+          echo "Workers: ${{ github.event.inputs.num_workers || 4 }}" >> ${SUMMARY_FILE}
+          echo "" >> ${SUMMARY_FILE}
+          echo "Output Directories:" >> ${SUMMARY_FILE}
+
+          if [ -n "${ZEROSHOT_OUT_DIR}" ]; then
+            echo "  Zero-Shot: ${ZEROSHOT_OUT_DIR}" >> ${SUMMARY_FILE}
+          fi
+
+          if [ -n "${COT_OUT_DIR}" ]; then
+            echo "  CoT: ${COT_OUT_DIR}" >> ${SUMMARY_FILE}
+          fi
+
+          if [ -n "${COMPARISON_DIR}" ]; then
+            echo "  Comparison: ${COMPARISON_DIR}" >> ${SUMMARY_FILE}
+          fi
+
+          echo "" >> ${SUMMARY_FILE}
+          echo "====================================" >> ${SUMMARY_FILE}
+
+          cat ${SUMMARY_FILE}
+
+      # Upload results as private artifacts
+      # Artifacts are only accessible to repo collaborators
+      - name: Upload Zero-Shot results
+        if: ${{ (github.event.inputs.prompt_type == 'zeroshot' || github.event.inputs.prompt_type == 'both') && env.ZEROSHOT_OUT_DIR != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroshot-results-${{ github.run_number }}
+          path: ${{ env.ZEROSHOT_OUT_DIR }}
+          retention-days: 90  # Keep for 90 days
+          if-no-files-found: warn
+
+      - name: Upload CoT results
+        if: ${{ (github.event.inputs.prompt_type == 'zeroshot-CoT' || github.event.inputs.prompt_type == 'both') && env.COT_OUT_DIR != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cot-results-${{ github.run_number }}
+          path: ${{ env.COT_OUT_DIR }}
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Upload comparison results
+        if: ${{ github.event.inputs.prompt_type == 'both' && env.COMPARISON_DIR != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: comparison-results-${{ github.run_number }}
+          path: ${{ env.COMPARISON_DIR }}
+          retention-days: 90
+          if-no-files-found: warn
+
+      - name: Upload run summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-summary-${{ github.run_number }}
+          path: ./outputs/run_summary.txt
+          retention-days: 90
+
+      # Optional: Upload to private cloud storage
+      # Uncomment and configure based on your storage provider
+
+      # - name: Upload to AWS S3 (Private Bucket)
+      #   if: ${{ always() }}
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: ${{ secrets.AWS_REGION }}
+      #   run: |
+      #     aws s3 sync ./outputs/ s3://${{ secrets.S3_BUCKET_NAME }}/benchmark-results/${{ github.run_number }}/ \
+      #       --exclude "*" \
+      #       --include "*.csv" \
+      #       --include "*.txt" \
+      #       --acl private
+
+      # - name: Upload to Azure Blob Storage (Private Container)
+      #   if: ${{ always() }}
+      #   env:
+      #     AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      #   run: |
+      #     pip install azure-storage-blob
+      #     python scripts/upload_to_azure.py ./outputs/ ${{ secrets.AZURE_CONTAINER_NAME }}
+
+      - name: Job summary
+        if: ${{ always() }}
+        run: |
+          echo "## Benchmark Completed :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Prompt Type:** ${{ github.event.inputs.prompt_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workers:** ${{ github.event.inputs.num_workers || 4 }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Results" >> $GITHUB_STEP_SUMMARY
+          echo "Results are available as artifacts (private to repo collaborators)." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> :lock: All results are stored privately and only accessible to authorized users." >> $GITHUB_STEP_SUMMARY
