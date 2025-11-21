@@ -4,13 +4,20 @@ This guide explains how to configure and use the GitHub Actions workflow to run 
 
 ## Security Features
 
-The workflow includes multiple layers of privacy:
+⚠️ **CRITICAL REQUIREMENT: Repository MUST be private!**
 
-1. **🔒 Private Artifacts**: Results are stored as GitHub artifacts, only visible to repo collaborators
-2. **🔐 Secrets Management**: API keys and URLs never appear in logs
-3. **🚫 Log Masking**: Sensitive data is automatically masked in workflow logs
+| Repository Type | Artifact Privacy |
+|----------------|------------------|
+| **Private Repository** ✅ | Artifacts only accessible to collaborators |
+| **Public Repository** ❌ | **Artifacts publicly downloadable by ANYONE!** |
+
+Privacy features (only effective in **private** repositories):
+
+1. **🔒 Private Artifacts**: Results only accessible to repo collaborators
+2. **🔐 Secrets Management**: API keys never appear in logs
+3. **🚫 Log Masking**: Sensitive data automatically masked
 4. **⏰ Retention Control**: Artifacts auto-delete after 90 days (configurable)
-5. **👥 Access Control**: Only repo collaborators can view workflow runs and download artifacts
+5. **👥 Access Control**: Workflow runs and downloads restricted to collaborators
 
 ## Initial Setup
 
@@ -30,15 +37,26 @@ Add the following secret:
 
 **Note:** The base URL and model name are **not** secrets - you'll provide them as workflow inputs when running the benchmark.
 
-### Step 2: Ensure Repository is Private (Recommended)
+### Step 2: Make Repository Private (**REQUIRED**)
 
-For maximum security:
+⚠️ **This is NOT optional if you want private results!**
+
+**Why this is critical:**
+- In public repos: **Anyone can download your benchmark artifacts**
+- In private repos: Only collaborators can access artifacts
+
+**To make repository private:**
 1. Go to `Settings → General`
-2. Under "Danger Zone", ensure repository visibility is **Private**
-3. This ensures:
-   - Workflow runs are only visible to collaborators
-   - Artifacts are only accessible to collaborators
-   - Action logs are not publicly visible
+2. Scroll to "Danger Zone"
+3. Click "Change visibility"
+4. Select **"Make private"**
+5. Confirm the change
+
+**This ensures:**
+- ✅ Workflow runs only visible to collaborators
+- ✅ Artifacts only accessible to collaborators
+- ✅ Action logs not publicly visible
+- ✅ Your benchmark results remain confidential
 
 ### Step 3: Configure Artifact Retention (Optional)
 
@@ -405,7 +423,7 @@ If you discover a security issue:
 
 Before running your first benchmark:
 
-- [ ] Repository is private (recommended)
+- [ ] **Repository is PRIVATE** (**REQUIRED** - not optional!)
 - [ ] `QISKIT_API_KEY` secret is configured
 - [ ] You have base URL from IBM Quantum docs
 - [ ] You have model name from IBM Quantum docs

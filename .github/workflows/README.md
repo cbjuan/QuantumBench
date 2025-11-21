@@ -23,9 +23,16 @@ Runs the QuantumBench benchmark against Qiskit Code Assistant with full privacy 
 
 ## Security & Privacy
 
-All workflows are designed with privacy in mind:
+⚠️ **CRITICAL: Repository MUST be private for results to be private!**
 
-- **Results stored as private artifacts**: Only repo collaborators can access
+| Repository Type | Security Level |
+|----------------|----------------|
+| **Private** ✅ | Artifacts only accessible to collaborators |
+| **Public** ❌ | **Artifacts publicly downloadable by anyone!** |
+
+Privacy features (only work in **private** repositories):
+
+- **Private artifacts**: Only repo collaborators can download
 - **Secrets management**: API keys never appear in logs
 - **Log masking**: Sensitive data automatically redacted
 - **Retention control**: Artifacts auto-delete after 90 days
@@ -35,18 +42,19 @@ All workflows are designed with privacy in mind:
 
 Before running workflows:
 
-1. **Configure API Key Secret** (`Settings → Secrets and variables → Actions`):
+1. **⚠️ MAKE REPOSITORY PRIVATE** (**REQUIRED** for private results):
+   - Go to `Settings → General`
+   - Under "Danger Zone", change repository visibility to **Private**
+   - **If repo is public, anyone can download your benchmark results!**
+
+2. **Configure API Key Secret** (`Settings → Secrets and variables → Actions`):
    - `QISKIT_API_KEY` - Your IBM Cloud API key (the only secret needed)
 
-2. **Get Configuration Parameters** (from IBM Quantum documentation):
+3. **Get Configuration Parameters** (from IBM Quantum documentation):
    - Base URL - API endpoint (https://qiskit-code-assistant.quantum.ibm.com/docs)
    - Model name - Model identifier (https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api)
 
    You'll provide these as workflow inputs (they're not secrets)
-
-3. **Ensure Repository is Private** (recommended):
-   - Go to `Settings → General`
-   - Verify "Repository visibility" is "Private"
 
 4. **Read the Setup Guide**:
    - See [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) for detailed instructions

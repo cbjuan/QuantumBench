@@ -223,6 +223,7 @@ jobs:
           echo "**Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Results" >> $GITHUB_STEP_SUMMARY
-          echo "Results are available as artifacts (private to repo collaborators)." >> $GITHUB_STEP_SUMMARY
+          echo "Results are available as artifacts." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> :lock: All results are stored privately and only accessible to authorized users." >> $GITHUB_STEP_SUMMARY
+          echo "> :lock: **Privacy Note:** Artifacts are only private if this repository is private!" >> $GITHUB_STEP_SUMMARY
+          echo "> In public repositories, artifacts can be downloaded by anyone." >> $GITHUB_STEP_SUMMARY
