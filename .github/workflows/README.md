@@ -35,16 +35,20 @@ All workflows are designed with privacy in mind:
 
 Before running workflows:
 
-1. **Configure Secrets** (`Settings → Secrets and variables → Actions`):
-   - `QISKIT_API_KEY` - Your IBM Cloud API key
-   - `QISKIT_API_BASE_URL` - API endpoint from IBM Quantum docs
-   - `QISKIT_MODEL_NAME` - Model name from IBM Quantum docs
+1. **Configure API Key Secret** (`Settings → Secrets and variables → Actions`):
+   - `QISKIT_API_KEY` - Your IBM Cloud API key (the only secret needed)
 
-2. **Ensure Repository is Private** (recommended):
+2. **Get Configuration Parameters** (from IBM Quantum documentation):
+   - Base URL - API endpoint (https://qiskit-code-assistant.quantum.ibm.com/docs)
+   - Model name - Model identifier (https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api)
+
+   You'll provide these as workflow inputs (they're not secrets)
+
+3. **Ensure Repository is Private** (recommended):
    - Go to `Settings → General`
    - Verify "Repository visibility" is "Private"
 
-3. **Read the Setup Guide**:
+4. **Read the Setup Guide**:
    - See [WORKFLOW_SETUP.md](WORKFLOW_SETUP.md) for detailed instructions
 
 ## Documentation
@@ -75,16 +79,18 @@ Start with `zeroshot` and 4 workers to establish a baseline.
 
 ### Run Zero-Shot Benchmark
 1. Actions → "Qiskit Code Assistant Benchmark" → "Run workflow"
-2. Prompt type: `zeroshot`
-3. Workers: `4`
-4. Run analysis: ✓
+2. Enter your base URL and model name
+3. Prompt type: `zeroshot`
+4. Workers: `4`
+5. Run analysis: ✓
 
 ### Run Both and Compare
 1. Actions → "Qiskit Code Assistant Benchmark" → "Run workflow"
-2. Prompt type: `both`
-3. Workers: `4`
-4. Run analysis: ✓
-5. Download `comparison-results-XXX` artifact
+2. Enter your base URL and model name
+3. Prompt type: `both`
+4. Workers: `4`
+5. Run analysis: ✓
+6. Download `comparison-results-XXX` artifact
 
 ### Schedule Weekly Runs
 1. Edit `benchmark.yml`

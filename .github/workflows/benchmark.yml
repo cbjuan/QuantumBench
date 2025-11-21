@@ -4,6 +4,14 @@ on:
   # Manual trigger with options
   workflow_dispatch:
     inputs:
+      base_url:
+        description: 'Qiskit API base URL (e.g., https://api.example.com/v1)'
+        required: true
+        type: string
+      model_name:
+        description: 'Model name to use (e.g., granite-qiskit-3.0)'
+        required: true
+        type: string
       prompt_type:
         description: 'Prompt type to use'
         required: true
@@ -64,8 +72,8 @@ jobs:
           OUT_DIR="./outputs/gh_zeroshot_${TIMESTAMP}"
 
           python code/qiskit_benchmark_agent.py \
-            --base-url "${{ secrets.QISKIT_API_BASE_URL }}" \
-            --model-name "${{ secrets.QISKIT_MODEL_NAME }}" \
+            --base-url "${{ github.event.inputs.base_url }}" \
+            --model-name "${{ github.event.inputs.model_name }}" \
             --prompt-type zeroshot \
             --out-dir "${OUT_DIR}" \
             --num-workers ${{ github.event.inputs.num_workers || 4 }} \
@@ -85,8 +93,8 @@ jobs:
           OUT_DIR="./outputs/gh_cot_${TIMESTAMP}"
 
           python code/qiskit_benchmark_agent.py \
-            --base-url "${{ secrets.QISKIT_API_BASE_URL }}" \
-            --model-name "${{ secrets.QISKIT_MODEL_NAME }}" \
+            --base-url "${{ github.event.inputs.base_url }}" \
+            --model-name "${{ github.event.inputs.model_name }}" \
             --prompt-type zeroshot-CoT \
             --out-dir "${OUT_DIR}" \
             --num-workers ${{ github.event.inputs.num_workers || 4 }} \
@@ -126,6 +134,8 @@ jobs:
           echo "Workflow Run: ${{ github.run_number }}" >> ${SUMMARY_FILE}
           echo "Triggered by: ${{ github.actor }}" >> ${SUMMARY_FILE}
           echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> ${SUMMARY_FILE}
+          echo "Base URL: ${{ github.event.inputs.base_url }}" >> ${SUMMARY_FILE}
+          echo "Model: ${{ github.event.inputs.model_name }}" >> ${SUMMARY_FILE}
           echo "Prompt Type: ${{ github.event.inputs.prompt_type }}" >> ${SUMMARY_FILE}
           echo "Workers: ${{ github.event.inputs.num_workers || 4 }}" >> ${SUMMARY_FILE}
           echo "" >> ${SUMMARY_FILE}
@@ -213,6 +223,8 @@ jobs:
         run: |
           echo "## Benchmark Completed :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Model:** ${{ github.event.inputs.model_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Base URL:** ${{ github.event.inputs.base_url }}" >> $GITHUB_STEP_SUMMARY
           echo "**Prompt Type:** ${{ github.event.inputs.prompt_type }}" >> $GITHUB_STEP_SUMMARY
           echo "**Workers:** ${{ github.event.inputs.num_workers || 4 }}" >> $GITHUB_STEP_SUMMARY
           echo "**Run Number:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY

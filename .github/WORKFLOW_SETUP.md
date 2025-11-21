@@ -14,23 +14,21 @@ The workflow includes multiple layers of privacy:
 
 ## Initial Setup
 
-### Step 1: Configure Repository Secrets
+### Step 1: Configure Repository Secret
 
 Navigate to your repository settings: `Settings → Secrets and variables → Actions`
 
-Add the following secrets:
+Add the following secret:
 
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
 | `QISKIT_API_KEY` | Your IBM Cloud API key | `ibm_cloud_xxxxxxxx` |
-| `QISKIT_API_BASE_URL` | Qiskit API base URL | Get from IBM Quantum docs |
-| `QISKIT_MODEL_NAME` | Model name to use | Get from IBM Quantum docs |
 
 **Important:**
-- Never commit these values to the repository
-- Get `QISKIT_API_BASE_URL` and `QISKIT_MODEL_NAME` from official IBM Quantum documentation:
-  - https://qiskit-code-assistant.quantum.ibm.com/docs
-  - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
+- Never commit your API key to the repository
+- Rotate API keys regularly for security
+
+**Note:** The base URL and model name are **not** secrets - you'll provide them as workflow inputs when running the benchmark.
 
 ### Step 2: Ensure Repository is Private (Recommended)
 
@@ -60,11 +58,17 @@ To change:
 3. Click **"Run workflow"**
 4. Configure options:
 
-   | Option | Description | Default |
-   |--------|-------------|---------|
-   | **Prompt type** | `zeroshot`, `zeroshot-CoT`, or `both` | `zeroshot` |
-   | **Number of workers** | Parallel workers (1-10) | `4` |
-   | **Run analysis** | Generate analysis report | `true` |
+   | Option | Description | Required | Example |
+   |--------|-------------|----------|---------|
+   | **Qiskit API base URL** | API endpoint URL | Yes | Get from IBM Quantum docs |
+   | **Model name** | Model identifier | Yes | Get from IBM Quantum docs |
+   | **Prompt type** | `zeroshot`, `zeroshot-CoT`, or `both` | Yes | `zeroshot` |
+   | **Number of workers** | Parallel workers (1-10) | No | `4` |
+   | **Run analysis** | Generate analysis report | No | `true` |
+
+   **Get base URL and model name from:**
+   - https://qiskit-code-assistant.quantum.ibm.com/docs
+   - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
 
 5. Click **"Run workflow"**
 
@@ -278,12 +282,15 @@ on:
 
 ### "Secret not found" error
 
-**Cause**: Secret not configured or incorrect name
+**Cause**: API key secret not configured
 
 **Solution**:
 1. Go to `Settings → Secrets and variables → Actions`
-2. Verify secret names match exactly (case-sensitive)
-3. Re-create secret if needed
+2. Verify `QISKIT_API_KEY` secret exists
+3. Secret name must be exactly `QISKIT_API_KEY` (case-sensitive)
+4. Re-create secret if needed
+
+**Note:** Base URL and model name are workflow inputs, not secrets
 
 ### Rate limit errors
 
@@ -423,8 +430,9 @@ If you discover a security issue:
 Before running your first benchmark:
 
 - [ ] Repository is private (recommended)
-- [ ] All secrets are configured
-- [ ] Secrets obtained from official IBM Quantum docs
+- [ ] `QISKIT_API_KEY` secret is configured
+- [ ] You have base URL from IBM Quantum docs
+- [ ] You have model name from IBM Quantum docs
 - [ ] Artifact retention period is appropriate
 - [ ] You understand cost implications
 - [ ] You have access to download artifacts
@@ -434,7 +442,8 @@ Then:
 - [ ] Go to Actions tab
 - [ ] Select workflow
 - [ ] Click "Run workflow"
-- [ ] Configure options
+- [ ] Enter base URL and model name
+- [ ] Configure other options
 - [ ] Monitor progress
 - [ ] Download results when complete
 
