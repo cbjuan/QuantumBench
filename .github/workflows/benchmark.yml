@@ -196,9 +196,8 @@ jobs:
           path: ./outputs/run_summary.txt
           retention-days: 90
 
-      # Optional: Upload to private cloud storage
-      # Uncomment and configure based on your storage provider
-
+      # Optional: Upload to private cloud storage (AWS S3, Google Cloud Storage, etc.)
+      # Example for AWS S3:
       # - name: Upload to AWS S3 (Private Bucket)
       #   if: ${{ always() }}
       #   env:
@@ -211,14 +210,6 @@ jobs:
       #       --include "*.csv" \
       #       --include "*.txt" \
       #       --acl private
-
-      # - name: Upload to Azure Blob Storage (Private Container)
-      #   if: ${{ always() }}
-      #   env:
-      #     AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-      #   run: |
-      #     pip install azure-storage-blob
-      #     python scripts/upload_to_azure.py ./outputs/ ${{ secrets.AZURE_CONTAINER_NAME }}
 
       - name: Job summary
         if: ${{ always() }}

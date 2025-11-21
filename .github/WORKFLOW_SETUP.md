@@ -141,13 +141,13 @@ curl -L -H "Authorization: token YOUR_GITHUB_TOKEN" \
   https://api.github.com/repos/OWNER/REPO/actions/artifacts/ARTIFACT_ID/zip
 ```
 
-## Advanced: Upload to Private Cloud Storage
+## Advanced: Upload to Private Cloud Storage (Optional)
 
-The workflow includes commented examples for uploading to private cloud storage.
+If GitHub artifacts aren't sufficient, you can add cloud storage upload to the workflow.
 
 ### AWS S3 (Private Bucket)
 
-1. Create a private S3 bucket
+1. Create a private S3 bucket with restricted access
 2. Add GitHub secrets:
    - `AWS_ACCESS_KEY_ID`
    - `AWS_SECRET_ACCESS_KEY`
@@ -156,34 +156,7 @@ The workflow includes commented examples for uploading to private cloud storage.
 
 3. Uncomment the "Upload to AWS S3" step in `benchmark.yml`
 
-4. Ensure bucket policy restricts access:
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Deny",
-    "Principal": "*",
-    "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::YOUR-BUCKET/*",
-    "Condition": {
-      "StringNotEquals": {
-        "aws:PrincipalAccount": "YOUR-AWS-ACCOUNT-ID"
-      }
-    }
-  }]
-}
-```
-
-### Azure Blob Storage (Private Container)
-
-1. Create a storage account with private container
-2. Add GitHub secret:
-   - `AZURE_STORAGE_CONNECTION_STRING`
-   - `AZURE_CONTAINER_NAME`
-
-3. Uncomment the "Upload to Azure" step in `benchmark.yml`
-
-4. Ensure container access level is **Private**
+4. Ensure bucket policy restricts public access
 
 ### Google Cloud Storage (Private Bucket)
 
@@ -194,6 +167,7 @@ The workflow includes commented examples for uploading to private cloud storage.
 
 ```yaml
 - name: Upload to GCS
+  if: ${{ always() }}
   env:
     GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
   run: |
@@ -202,6 +176,8 @@ The workflow includes commented examples for uploading to private cloud storage.
     gsutil -m rsync -r ./outputs/ gs://${{ secrets.GCS_BUCKET_NAME }}/runs/${{ github.run_number }}/
     rm key.json
 ```
+
+**Note:** Most users won't need cloud storage - GitHub artifacts are private and sufficient for most use cases.
 
 ## Scheduled Runs (Optional)
 
