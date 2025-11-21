@@ -27,6 +27,31 @@ from datetime import datetime
 from pathlib import Path
 
 
+def normalize_api_url(url: str) -> str:
+    """
+    Normalize API URL to ensure proper format for OpenAI-compatible endpoints.
+    Removes /v1 suffix if present, as it will be added by the client setup.
+
+    Args:
+        url: Base URL for the API endpoint
+
+    Returns:
+        Normalized URL without trailing slashes or /v1 suffix
+
+    Examples:
+        >>> normalize_api_url("https://example.com")
+        'https://example.com'
+        >>> normalize_api_url("https://example.com/v1")
+        'https://example.com'
+        >>> normalize_api_url("https://example.com/v1/")
+        'https://example.com'
+    """
+    url = url.rstrip('/')
+    if url.endswith('/v1'):
+        url = url[:-3]
+    return url
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Qiskit Code Assistant Benchmark Agent',
@@ -154,6 +179,9 @@ def run_benchmark(args):
         env['OPENAI_API_KEY'] = args.api_key
 
     # Build command for the existing benchmark script
+    # Normalize URL to ensure consistent format (removes /v1 suffix and trailing slashes)
+    normalized_url = normalize_api_url(args.base_url)
+
     cmd = [
         sys.executable,
         'code/100_run_benchmark.py',
@@ -163,7 +191,7 @@ def run_benchmark(args):
         '--client-type', 'local',  # Use local client type to specify custom base URL
         '--effort', 'None',
         '--prompt-type', args.prompt_type,
-        '--llm-server-url', args.base_url.rstrip('/v1'),  # Remove /v1 suffix if present
+        '--llm-server-url', normalized_url,  # Use normalized URL
         '--out-dir', args.out_dir,
         '--num-workers', str(args.num_workers)
     ]

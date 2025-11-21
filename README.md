@@ -18,6 +18,32 @@ QuantumBench is an LLM benchmark built from 769 multiple-choice questions curate
 
 > ⚠️ **Important**: `quantumbench.zip` is password-protected. Unlock it with `do_not_use_quantumbench_for_training`—the password is also a reminder to keep the dataset for evaluation rather than model training.
 
+## Qiskit Code Assistant Integration 🚀
+
+This repository now includes a complete benchmarking agent for **Qiskit Code Assistant** with minimal configuration:
+
+**Quick Start:**
+```bash
+export OPENAI_API_KEY="your_ibm_cloud_api_key"
+python code/qiskit_benchmark_agent.py --analyze
+```
+
+**Features:**
+- ✅ **One-command execution** - Just set your API key and run
+- ✅ **Automatic analysis** - Detailed reports by difficulty, expertise, and subdomain
+- ✅ **Prompt comparison** - Compare zero-shot vs chain-of-thought reasoning
+- ✅ **GitHub Actions** - Automated benchmarking with private results
+- ✅ **Sensible defaults** - Pre-configured for Qiskit Code Assistant endpoints
+
+**Documentation:**
+- [Quick Start Guide](QUICKSTART_QISKIT.md) - Get running in 5 minutes
+- [Full Documentation](QISKIT_AGENT_README.md) - Complete usage guide
+- [Comparison Guide](COMPARISON_GUIDE.md) - Optimize prompt types
+- [GitHub Actions Setup](.github/WORKFLOW_SETUP.md) - Automated workflows
+
+**Example Output:**
+The agent generates comprehensive analysis including pass rates by difficulty level (1-5), expertise level (1-4), subdomain (Quantum Mechanics, Computation, etc.), and question type (Algebraic, Numerical, Conceptual).
+
 ## Dataset Layout
 - `quantumbench.zip`: Password-protected archive that expands into the `quantumbench/` directory when unlocked.
 - `quantumbench/quantumbench.csv`: English questions with seven incorrect answers, the correct answer, and provenance (769 rows).

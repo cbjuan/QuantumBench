@@ -123,15 +123,18 @@ def calculate_statistics(df):
 def analyze_by_difficulty(df):
     """Analyze results grouped by difficulty level"""
 
+    # Filter out rows with missing difficulty values
+    df_valid = df.dropna(subset=['Avg_Difficulty']).copy()
+
     # Create difficulty bins
-    df['Difficulty_Level'] = pd.cut(
-        df['Avg_Difficulty'],
+    df_valid['Difficulty_Level'] = pd.cut(
+        df_valid['Avg_Difficulty'],
         bins=[0, 1.5, 2.5, 3.5, 4.5, 5.5],
         labels=['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'],
         include_lowest=True
     )
 
-    difficulty_stats = df.groupby('Difficulty_Level', observed=True).agg({
+    difficulty_stats = df_valid.groupby('Difficulty_Level', observed=True).agg({
         'Correct': ['count', 'sum', 'mean'],
         'Avg_Difficulty': 'mean'
     }).round(4)
@@ -139,21 +142,25 @@ def analyze_by_difficulty(df):
     difficulty_stats.columns = ['Total_Questions', 'Correct_Answers', 'Pass_Rate', 'Avg_Difficulty']
     difficulty_stats['Pass_Rate'] = difficulty_stats['Pass_Rate'] * 100
 
+    # Note: Questions with missing difficulty annotations are excluded from this analysis
     return difficulty_stats
 
 
 def analyze_by_expertise(df):
     """Analyze results grouped by expertise level"""
 
+    # Filter out rows with missing expertise values
+    df_valid = df.dropna(subset=['Avg_Expertise']).copy()
+
     # Create expertise bins
-    df['Expertise_Level'] = pd.cut(
-        df['Avg_Expertise'],
+    df_valid['Expertise_Level'] = pd.cut(
+        df_valid['Avg_Expertise'],
         bins=[0, 1.5, 2.5, 3.5, 4.5],
         labels=['Level 1', 'Level 2', 'Level 3', 'Level 4'],
         include_lowest=True
     )
 
-    expertise_stats = df.groupby('Expertise_Level', observed=True).agg({
+    expertise_stats = df_valid.groupby('Expertise_Level', observed=True).agg({
         'Correct': ['count', 'sum', 'mean'],
         'Avg_Expertise': 'mean'
     }).round(4)
@@ -161,6 +168,7 @@ def analyze_by_expertise(df):
     expertise_stats.columns = ['Total_Questions', 'Correct_Answers', 'Pass_Rate', 'Avg_Expertise']
     expertise_stats['Pass_Rate'] = expertise_stats['Pass_Rate'] * 100
 
+    # Note: Questions with missing expertise annotations are excluded from this analysis
     return expertise_stats
 
 
@@ -201,23 +209,26 @@ def analyze_by_question_type(df):
 def analyze_difficulty_expertise_matrix(df):
     """Analyze results in a difficulty x expertise matrix"""
 
+    # Filter out rows with missing difficulty or expertise values
+    df_valid = df.dropna(subset=['Avg_Difficulty', 'Avg_Expertise']).copy()
+
     # Create bins for both dimensions
-    df['Difficulty_Level'] = pd.cut(
-        df['Avg_Difficulty'],
+    df_valid['Difficulty_Level'] = pd.cut(
+        df_valid['Avg_Difficulty'],
         bins=[0, 1.5, 2.5, 3.5, 4.5, 5.5],
         labels=['D1', 'D2', 'D3', 'D4', 'D5'],
         include_lowest=True
     )
 
-    df['Expertise_Level'] = pd.cut(
-        df['Avg_Expertise'],
+    df_valid['Expertise_Level'] = pd.cut(
+        df_valid['Avg_Expertise'],
         bins=[0, 1.5, 2.5, 3.5, 4.5],
         labels=['E1', 'E2', 'E3', 'E4'],
         include_lowest=True
     )
 
     # Create matrix of pass rates
-    matrix = df.pivot_table(
+    matrix = df_valid.pivot_table(
         values='Correct',
         index='Difficulty_Level',
         columns='Expertise_Level',

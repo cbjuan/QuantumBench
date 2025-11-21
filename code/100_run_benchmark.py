@@ -386,7 +386,7 @@ def main(problem_name, model_name, out_dir, prompt_type, model_type, client_type
     with open(csv_filename, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(['Question id', 'Question', 'Correct answer', 'Correct index', 'Model answer index',
-                            'Model answer', 'Correct', 'Model response', 'Subdomain', 'Source File',
+                            'Model answer', 'Correct', 'Model response', 'Subdomain',
                             'Prompt tokens', 'Cached tokens', 'Completion tokens'])
 
         for question_id, example, response, model_answer, prompt_tokens, cached_tokens, completion_tokens in results:

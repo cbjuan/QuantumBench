@@ -352,7 +352,12 @@ def generate_report(overall_stats, difficulty_comp, expertise_comp, subdomain_co
         report_lines.append(f"  • Both approaches have EQUAL performance")
 
     if float(token_diff) != 0:
-        report_lines.append(f"  • {label2} uses {token_diff} more tokens ({abs(float(token_diff) / float(overall_stats[overall_stats['Metric'] == 'Total Tokens'][label1].values[0]) * 100):.1f}% {'increase' if float(token_diff) > 0 else 'decrease'})")
+        tokens_run1 = float(overall_stats[overall_stats['Metric'] == 'Total Tokens'][label1].values[0])
+        if tokens_run1 > 0:
+            pct_change = abs(float(token_diff) / tokens_run1 * 100)
+            report_lines.append(f"  • {label2} uses {token_diff} more tokens ({pct_change:.1f}% {'increase' if float(token_diff) > 0 else 'decrease'})")
+        else:
+            report_lines.append(f"  • {label2} uses {token_diff} more tokens")
     report_lines.append("")
 
     # Question-level differences
@@ -395,11 +400,16 @@ def generate_report(overall_stats, difficulty_comp, expertise_comp, subdomain_co
     if float(pass_rate_diff) > 2:
         report_lines.append(f"  ✓ {label2} shows significant improvement (+{pass_rate_diff}%)")
         if float(token_diff) > 0:
-            cost_benefit = float(pass_rate_diff) / (float(token_diff) / float(overall_stats[overall_stats['Metric'] == 'Total Tokens'][label1].values[0]) * 100)
-            if cost_benefit > 0.5:
-                report_lines.append(f"  ✓ The performance gain justifies the increased token usage")
+            tokens_run1 = float(overall_stats[overall_stats['Metric'] == 'Total Tokens'][label1].values[0])
+            if tokens_run1 > 0:
+                token_pct_increase = float(token_diff) / tokens_run1 * 100
+                cost_benefit = float(pass_rate_diff) / token_pct_increase
+                if cost_benefit > 0.5:
+                    report_lines.append(f"  ✓ The performance gain justifies the increased token usage")
+                else:
+                    report_lines.append(f"  ⚠ Consider whether the performance gain justifies {abs(token_pct_increase):.1f}% more tokens")
             else:
-                report_lines.append(f"  ⚠ Consider whether the performance gain justifies {abs(float(token_diff) / float(overall_stats[overall_stats['Metric'] == 'Total Tokens'][label1].values[0]) * 100):.1f}% more tokens")
+                report_lines.append(f"  ✓ {label2} uses more tokens but shows performance improvement")
     elif float(pass_rate_diff) < -2:
         report_lines.append(f"  ✓ {label1} performs better - stick with this approach")
     else:
