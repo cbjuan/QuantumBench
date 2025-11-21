@@ -1,15 +1,14 @@
 #!/bin/bash
 # Example script for running the Qiskit Code Assistant Benchmark Agent
 #
-# IMPORTANT: Edit the BASE_URL and MODEL_NAME variables below with your actual values
-#            from IBM Quantum documentation:
-#            - https://qiskit-code-assistant.quantum.ibm.com/docs
-#            - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
+# This script uses the default Qiskit Code Assistant configuration.
+# To use custom values, set these environment variables before running:
+#   export QISKIT_API_BASE_URL="https://your-custom-endpoint.com/"
+#   export QISKIT_MODEL_NAME="your-model-name"
 #
 # Usage:
-#   1. Edit BASE_URL and MODEL_NAME below
-#   2. Set your API key: export OPENAI_API_KEY="your_ibm_cloud_api_key"
-#   3. Run this script: bash examples/run_qiskit_agent_example.sh
+#   1. Set your API key: export OPENAI_API_KEY="your_ibm_cloud_api_key"
+#   2. Run this script: bash examples/run_qiskit_agent_example.sh
 
 set -e
 
@@ -25,21 +24,14 @@ if [ -z "$OPENAI_API_KEY" ]; then
     exit 1
 fi
 
-# Configuration - EDIT THESE VALUES
-# Get the correct BASE_URL and MODEL_NAME from IBM Quantum documentation
-BASE_URL="YOUR_QISKIT_API_BASE_URL"  # e.g., "https://example.com/v1"
-MODEL_NAME="YOUR_MODEL_NAME"          # e.g., "granite-qiskit-3.0"
+# Configuration - EDIT IF NEEDED (defaults are set for Qiskit Code Assistant)
+BASE_URL="${QISKIT_API_BASE_URL:-https://qiskit-code-assistant.quantum.ibm.com/}"
+MODEL_NAME="${QISKIT_MODEL_NAME:-mistral-small-3.2-24b-qiskit}"
 PROMPT_TYPE="zeroshot"
 NUM_WORKERS=4
 
-# Validate configuration
-if [ "$BASE_URL" = "YOUR_QISKIT_API_BASE_URL" ] || [ "$MODEL_NAME" = "YOUR_MODEL_NAME" ]; then
-    echo "Error: Please edit this script and set BASE_URL and MODEL_NAME"
-    echo "Get these values from IBM Quantum documentation:"
-    echo "  - https://qiskit-code-assistant.quantum.ibm.com/docs"
-    echo "  - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api"
-    exit 1
-fi
+echo "Note: Using default Qiskit Code Assistant configuration"
+echo "  To use custom values, set QISKIT_API_BASE_URL and QISKIT_MODEL_NAME environment variables"
 
 # Generate timestamp for output directory
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")

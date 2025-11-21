@@ -37,19 +37,22 @@ Get base URL and model name from IBM Quantum documentation:
   - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
 
 Examples:
-  # Run benchmark with Qiskit Code Assistant
+  # Run benchmark with defaults (Qiskit Code Assistant)
   python code/qiskit_benchmark_agent.py \\
       --api-key YOUR_IBM_CLOUD_API_KEY \\
-      --base-url YOUR_QISKIT_API_BASE_URL \\
-      --model-name YOUR_MODEL_NAME \\
-      --num-workers 4
+      --analyze
 
-  # Run with custom configuration
+  # Run with Chain-of-Thought
   python code/qiskit_benchmark_agent.py \\
       --api-key YOUR_API_KEY \\
-      --base-url YOUR_QISKIT_API_BASE_URL \\
-      --model-name YOUR_MODEL_NAME \\
       --prompt-type zeroshot-CoT \\
+      --analyze
+
+  # Run with custom endpoint/model
+  python code/qiskit_benchmark_agent.py \\
+      --api-key YOUR_API_KEY \\
+      --base-url https://custom-endpoint.com/ \\
+      --model-name custom-model-name \\
       --analyze
         """
     )
@@ -65,14 +68,14 @@ Examples:
     api_group.add_argument(
         '--base-url',
         type=str,
-        help='Base URL for Qiskit Code Assistant API (obtain from IBM Quantum docs)',
-        required=True
+        help='Base URL for Qiskit Code Assistant API (default: https://qiskit-code-assistant.quantum.ibm.com/)',
+        default='https://qiskit-code-assistant.quantum.ibm.com/'
     )
     api_group.add_argument(
         '--model-name',
         type=str,
-        help='Model name to use (obtain from IBM Quantum docs)',
-        required=True
+        help='Model name to use (default: mistral-small-3.2-24b-qiskit)',
+        default='mistral-small-3.2-24b-qiskit'
     )
 
     # Benchmark Configuration

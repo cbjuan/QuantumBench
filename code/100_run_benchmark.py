@@ -138,7 +138,7 @@ def create_prompts(examples, prompt_type: str):
 
 def call_model(prompt: str, model_type: str, client_type: str, url: str, model_name: str, effort: str) -> Union[str, None]:
 
-    ## Cliant
+    ## Client
     if client_type == "local":
         client = openai.OpenAI(
             api_key="mykey",
@@ -157,7 +157,7 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
 
 
     ## Prompt
-    if model_type == ["llama", "Qwen"]:
+    if model_type in ["llama", "Qwen"]:
         systemprompt ="""
         You are a very intelligent assistant, who follows instructions directly.
         """

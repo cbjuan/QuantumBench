@@ -5,13 +5,15 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Qiskit API base URL (e.g., https://api.example.com/v1)'
-        required: true
+        description: 'Qiskit API base URL'
+        required: false
         type: string
+        default: 'https://qiskit-code-assistant.quantum.ibm.com/'
       model_name:
-        description: 'Model name to use (e.g., granite-qiskit-3.0)'
-        required: true
+        description: 'Model name to use'
+        required: false
         type: string
+        default: 'mistral-small-3.2-24b-qiskit'
       prompt_type:
         description: 'Prompt type to use'
         required: true

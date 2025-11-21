@@ -25,20 +25,13 @@ if [ -z "$OPENAI_API_KEY" ]; then
     exit 1
 fi
 
-# Configuration - EDIT THESE VALUES
-# Get the correct BASE_URL and MODEL_NAME from IBM Quantum documentation
-BASE_URL="YOUR_QISKIT_API_BASE_URL"  # e.g., "https://example.com/v1"
-MODEL_NAME="YOUR_MODEL_NAME"          # e.g., "granite-qiskit-3.0"
+# Configuration - EDIT IF NEEDED (defaults are set for Qiskit Code Assistant)
+BASE_URL="${QISKIT_API_BASE_URL:-https://qiskit-code-assistant.quantum.ibm.com/}"
+MODEL_NAME="${QISKIT_MODEL_NAME:-mistral-small-3.2-24b-qiskit}"
 NUM_WORKERS=4  # Reduce to 2 for CoT if you hit rate limits
 
-# Validate configuration
-if [ "$BASE_URL" = "YOUR_QISKIT_API_BASE_URL" ] || [ "$MODEL_NAME" = "YOUR_MODEL_NAME" ]; then
-    echo "Error: Please edit this script and set BASE_URL and MODEL_NAME"
-    echo "Get these values from IBM Quantum documentation:"
-    echo "  - https://qiskit-code-assistant.quantum.ibm.com/docs"
-    echo "  - https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api"
-    exit 1
-fi
+echo "Note: Using default Qiskit Code Assistant configuration"
+echo "  To use custom values, set QISKIT_API_BASE_URL and QISKIT_MODEL_NAME environment variables"
 
 # Generate timestamp for output directories
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")

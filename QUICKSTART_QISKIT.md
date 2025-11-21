@@ -30,50 +30,53 @@ pip install openai pandas tqdm
 
 ### Option 1: Using the Example Script (Easiest)
 
-**Note:** You need to edit `examples/run_qiskit_agent_example.sh` first to add your actual API base URL and model name from IBM Quantum documentation.
+The script uses sensible defaults for Qiskit Code Assistant. Just set your API key and run!
 
 ```bash
 # Set your API key
 export OPENAI_API_KEY="your_ibm_cloud_api_key_here"
 
-# Edit the example script first to add your base URL and model name
-# Then run:
+# Run with defaults
 bash examples/run_qiskit_agent_example.sh
 ```
 
 That's it! The script will:
 1. Run the full benchmark (769 questions)
-2. Save results to `outputs/qiskit_run_TIMESTAMP/`
-3. Generate a detailed analysis report
+2. Use default endpoint: `https://qiskit-code-assistant.quantum.ibm.com/`
+3. Use default model: `mistral-small-3.2-24b-qiskit`
+4. Save results to `outputs/qiskit_run_TIMESTAMP/`
+5. Generate a detailed analysis report
+
+**Optional:** Override defaults:
+```bash
+export QISKIT_API_BASE_URL="https://custom-endpoint.com/"
+export QISKIT_MODEL_NAME="custom-model"
+bash examples/run_qiskit_agent_example.sh
+```
 
 ### Option 2: Using Python Directly
 
+**Simplest (uses defaults):**
 ```bash
 export OPENAI_API_KEY="your_ibm_cloud_api_key_here"
-
-python code/qiskit_benchmark_agent.py \
-    --base-url YOUR_QISKIT_API_BASE_URL \
-    --model-name YOUR_MODEL_NAME \
-    --num-workers 4 \
-    --analyze
+python code/qiskit_benchmark_agent.py --analyze
 ```
 
-Replace `YOUR_QISKIT_API_BASE_URL` and `YOUR_MODEL_NAME` with values from IBM Quantum documentation:
-- https://qiskit-code-assistant.quantum.ibm.com/docs
-- https://quantum.cloud.ibm.com/docs/en/guides/qiskit-code-assistant-openai-api
-
-### Option 3: Custom Configuration
-
+**With custom configuration:**
 ```bash
 python code/qiskit_benchmark_agent.py \
-    --api-key "your_key" \
-    --base-url "https://your-endpoint.com/v1" \
-    --model-name "your-model" \
+    --base-url https://custom-endpoint.com/ \
+    --model-name custom-model-name \
     --prompt-type zeroshot-CoT \
     --num-workers 8 \
-    --out-dir ./outputs/my_run \
     --analyze
 ```
+
+**Defaults:**
+- Base URL: `https://qiskit-code-assistant.quantum.ibm.com/`
+- Model: `mistral-small-3.2-24b-qiskit`
+- Prompt type: `zeroshot`
+- Workers: `4`
 
 ## Understanding the Results
 
