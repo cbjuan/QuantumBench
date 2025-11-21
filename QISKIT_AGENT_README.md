@@ -21,13 +21,10 @@ This agent runs the QuantumBench benchmark against the Qiskit Code Assistant Ope
 3. **Dependencies**: Install required packages:
 
 ```bash
-# Using uv (recommended)
+# Using uv for environment and dependency management
 uv venv
 source .venv/bin/activate
 uv pip install openai pandas tqdm
-
-# Or using pip
-pip install openai pandas tqdm
 ```
 
 ## Quick Start

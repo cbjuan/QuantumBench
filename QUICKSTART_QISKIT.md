@@ -17,13 +17,10 @@ cd QuantumBench
 # 2. Extract the dataset (if not already done)
 unzip -P 'do_not_use_quantumbench_for_training' quantumbench.zip
 
-# 3. Install dependencies (using uv - recommended)
+# 3. Install dependencies using uv
 uv venv
 source .venv/bin/activate
 uv pip install openai pandas tqdm
-
-# OR using regular pip
-pip install openai pandas tqdm
 ```
 
 ## Running the Benchmark
@@ -237,6 +234,7 @@ unzip -P 'do_not_use_quantumbench_for_training' quantumbench.zip
 # Complete workflow in one go
 export OPENAI_API_KEY="your_key"
 unzip -P 'do_not_use_quantumbench_for_training' quantumbench.zip
+uv venv && source .venv/bin/activate
 uv pip install openai pandas tqdm
 bash examples/run_qiskit_agent_example.sh
 ```
