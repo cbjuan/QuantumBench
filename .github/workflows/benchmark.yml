@@ -41,6 +41,7 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours max (full benchmark with both prompt types typically takes 3-6 hours)
 
     # Ensure workflow runs are only visible to repo collaborators
     # This is automatic for private repos

@@ -145,11 +145,20 @@ Each run produces `<out_dir>/<problem-name>_results_<model>_<seed>.csv` with col
 - `Question id`, `Question`, `Correct answer`, `Correct index`: Ground-truth metadata.
 - `Model answer index`, `Model answer`: Choice letter (A–H) and the resolved text. Missing parses fall back to `No response`.
 - `Correct`: Boolean indicator of model accuracy.
-- `Model response`: Last 100 characters of the raw response (kept short to control file size).
+- `Model response`: ⚠️ **Only the last 100 characters** of the raw response (truncated to control CSV file size).
 - `Subdomain`: Available subdomain label.
 - `Prompt tokens`, `Cached tokens`, `Completion tokens`: Token usage as reported by the API.
 
-The full prompt/response objects are serialized to `cache/<job_name>/<question_id>_response.pkl`. When rerunning the benchmark, existing CSV rows with valid answers are reused to minimize additional API calls.
+**Full Response Storage:**
+Complete model responses are preserved in `cache/<job_name>/<question_id>_response.pkl` files. To inspect full responses, load these pickle files:
+```python
+import pickle
+with open('cache/<job_name>/<question_id>_response.pkl', 'rb') as f:
+    data = pickle.load(f)
+    print(data['response'])  # Full API response object
+```
+
+When rerunning the benchmark, existing CSV rows with valid answers are reused to minimize additional API calls.
 
 ## Limitations and Notes
 - The evaluation script assumes the OpenAI Responses API schema. Extend `call_model` if you need to adapt to alternate providers.

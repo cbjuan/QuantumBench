@@ -21,10 +21,34 @@ Usage:
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
+
+
+def clear_cache(cache_dir: str = './cache') -> None:
+    """
+    Clear all cached API responses.
+
+    Args:
+        cache_dir: Path to the cache directory
+
+    Returns:
+        None
+    """
+    if os.path.exists(cache_dir):
+        print(f"Clearing cache directory: {cache_dir}")
+        try:
+            shutil.rmtree(cache_dir)
+            print(f"✓ Cache cleared successfully")
+        except Exception as e:
+            print(f"✗ Error clearing cache: {e}")
+            sys.exit(1)
+    else:
+        print(f"Cache directory does not exist: {cache_dir}")
 
 
 def normalize_api_url(url: str) -> str:
@@ -52,7 +76,7 @@ def normalize_api_url(url: str) -> str:
     return url
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description='Qiskit Code Assistant Benchmark Agent',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -131,6 +155,20 @@ Examples:
         default=4
     )
 
+    # Cache Management
+    cache_group = parser.add_argument_group('Cache Management')
+    cache_group.add_argument(
+        '--clear-cache',
+        action='store_true',
+        help='Clear all cached responses before running benchmark'
+    )
+    cache_group.add_argument(
+        '--cache-dir',
+        type=str,
+        help='Cache directory path (default: ./cache)',
+        default='./cache'
+    )
+
     # Analysis Configuration
     analysis_group = parser.add_argument_group('Analysis Configuration')
     analysis_group.add_argument(
@@ -155,9 +193,15 @@ Examples:
     return args
 
 
-def run_benchmark(args):
+def run_benchmark(args: argparse.Namespace) -> bool:
     """
-    Run the QuantumBench benchmark using the existing benchmark script
+    Run the QuantumBench benchmark using the existing benchmark script.
+
+    Args:
+        args: Parsed command-line arguments
+
+    Returns:
+        True if benchmark completed successfully, False otherwise
     """
     print("=" * 80)
     print("Running Qiskit Code Assistant Benchmark")
@@ -213,8 +257,14 @@ def run_benchmark(args):
         return False
 
 
-def main():
+def main() -> None:
+    """Main entry point for the Qiskit benchmark agent."""
     args = parse_args()
+
+    # Clear cache if requested
+    if args.clear_cache:
+        clear_cache(args.cache_dir)
+        print()
 
     # Validate API key
     if not args.analyze_only and not args.api_key:
