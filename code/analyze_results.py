@@ -69,9 +69,18 @@ def load_data(results_file, human_eval_file, category_file):
 
     # Calculate average difficulty and expertise for each question
     # Handle missing values by calculating mean of available ratings
+
+    # Convert difficulty columns to numeric, coercing errors to NaN
+    for col in ['Difficulty1', 'Difficulty2', 'Difficulty3']:
+        human_eval_df[col] = pd.to_numeric(human_eval_df[col], errors='coerce')
+
     human_eval_df['Avg_Difficulty'] = human_eval_df[
         ['Difficulty1', 'Difficulty2', 'Difficulty3']
     ].mean(axis=1, skipna=True)
+
+    # Convert expertise columns to numeric, coercing errors to NaN
+    for col in ['Expertise1', 'Expertise2', 'Expertise3']:
+        human_eval_df[col] = pd.to_numeric(human_eval_df[col], errors='coerce')
 
     human_eval_df['Avg_Expertise'] = human_eval_df[
         ['Expertise1', 'Expertise2', 'Expertise3']
