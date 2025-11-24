@@ -42,6 +42,7 @@ OPENROUTER_API_KEY=None
 OPENAI_API_KEY=os.environ["OPENAI_API_KEY"]
 
 QB_PATH = './quantumbench/quantumbench.csv'
+CATEGORY_PATH = './quantumbench/category.csv'
 CACHE_PATH = './cache'
 
 
@@ -101,7 +102,16 @@ def shuffle_choices_and_create_example(row, idx):
 
 
 def load_examples(seed: int):
+    # Load main questions
     question_df = pd.read_csv(QB_PATH)
+
+    # Load and merge category data (subdomain information)
+    category_df = pd.read_csv(CATEGORY_PATH)
+    question_df = question_df.merge(category_df[['Question id', 'Subdomain']], on='Question id', how='left')
+
+    # Fill missing subdomains with 'Unknown'
+    question_df['Subdomain'] = question_df['Subdomain'].fillna('Unknown')
+
     random.seed(seed)
     return [shuffle_choices_and_create_example(row, idx) for idx, row in question_df.iterrows()]
 
