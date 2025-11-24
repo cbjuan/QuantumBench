@@ -219,7 +219,7 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
     ## Client
     if client_type == "local":
         client = openai.OpenAI(
-            api_key="mykey",
+            api_key=OPENAI_API_KEY,  # Use actual API key from environment
             base_url=f"{url}/v1"
         )
     elif client_type == "openrouter":
