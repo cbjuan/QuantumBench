@@ -22,7 +22,9 @@ Error: Error code: 404 - {'detail': 'Not Found'}
 ```
 
 ### Cause
-The API base URL or endpoint path is incorrect.
+This was caused by using the wrong API endpoint type. **This has been fixed in commit `ea84722`.**
+
+Qiskit Code Assistant uses the legacy `/completions` endpoint, not the newer `/chat/completions` endpoint. The benchmark now automatically uses the correct endpoint.
 
 ### Solution
 
@@ -322,8 +324,9 @@ These issues have been fixed in recent commits:
 
 | Issue | Commit | Date | Fix |
 |-------|--------|------|-----|
-| Analysis TypeError | `88b4023` | 2024 | Convert columns to numeric before mean calculation |
-| 404 Error Diagnostics | `ffe19fa` | 2024 | Add detailed error messages and troubleshooting |
+| **API 404 Errors** | `ea84722` | 2024-11-24 | **Use legacy /completions endpoint for Qiskit** |
+| Analysis TypeError | `88b4023` | 2024-11-24 | Convert columns to numeric before mean calculation |
+| 404 Error Diagnostics | `ffe19fa` | 2024-11-24 | Add detailed error messages and troubleshooting |
 | Subdomain KeyError | `8c5a322` | 2024 | Use correct column name from category.csv |
 | Missing Subdomain Data | `d9b3763` | 2024 | Merge category data properly |
 | CSV Column Mismatch | `571783d` | 2024 | Remove unused Source File column |
@@ -335,6 +338,8 @@ Update your code to get these fixes:
 ```bash
 git pull origin claude/qiskit-benchmark-agent-01PmNocvTBdRULRzbykrcDxR
 ```
+
+**Latest Fix (Commit `ea84722`)**: The API 404 errors have been resolved! The benchmark now correctly uses the legacy `/completions` endpoint instead of `/chat/completions` for Qiskit Code Assistant.
 
 ---
 
@@ -400,4 +405,6 @@ QuantumBench/
 ---
 
 **Last Updated**: 2024-11-24
-**Applies to**: Commits `88b4023` and later
+**Applies to**: Commits `ea84722` and later
+
+**Important Note**: As of commit `ea84722`, the benchmark automatically uses the correct legacy `/completions` endpoint for Qiskit Code Assistant. No additional configuration is needed.
