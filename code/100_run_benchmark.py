@@ -275,6 +275,23 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
             )
         response = _call_api()
         out_response = response.output[1].content[0].text
+
+    elif model_type == "qiskit":
+        # Qiskit Code Assistant uses legacy /completions endpoint (not /chat/completions)
+        # Format: plain prompt string with system message prepended
+        full_prompt = "You are a very intelligent assistant, who follows instructions directly.\n\n" + prompt
+
+        @retry_with_exponential_backoff
+        def _call_api():
+            return client.completions.create(
+                model=model_name,
+                prompt=full_prompt,
+                temperature=0.7,
+                max_tokens=2000,
+            )
+        response = _call_api()
+        out_response = response.choices[0].text if response.choices else None
+
     else:
         @retry_with_exponential_backoff
         def _call_api():
@@ -287,9 +304,21 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
         out_response = response.choices[0].message.content if response.choices else None
 
     try:
-        prompt_tokens = getattr(response.usage, "input_tokens", 0)
-        cached_tokens = getattr(response.usage.input_tokens_details, "cached_tokens", 0)
-        completion_tokens = getattr(response.usage, "output_tokens", 0)
+        # Try new format first (input_tokens/output_tokens)
+        prompt_tokens = getattr(response.usage, "input_tokens", None)
+        completion_tokens = getattr(response.usage, "output_tokens", None)
+
+        # Fallback to legacy format (prompt_tokens/completion_tokens)
+        if prompt_tokens is None:
+            prompt_tokens = getattr(response.usage, "prompt_tokens", 0)
+        if completion_tokens is None:
+            completion_tokens = getattr(response.usage, "completion_tokens", 0)
+
+        # Try to get cached tokens (may not exist in all formats)
+        try:
+            cached_tokens = getattr(response.usage.input_tokens_details, "cached_tokens", 0)
+        except:
+            cached_tokens = 0
     except:
         prompt_tokens = 0
         cached_tokens = 0
@@ -438,21 +467,28 @@ def main(problem_name, model_name, out_dir, prompt_type, model_type, client_type
     print("=" * 80)
     print("BENCHMARK CONFIGURATION")
     print("=" * 80)
+    print(f"Model Type: {model_type}")
     print(f"Client Type: {client_type}")
     print(f"API Base URL: {url}")
     print(f"Model Name: {model_name}")
     print(f"Prompt Type: {prompt_type}")
     print(f"Workers: {num_workers}")
+
+    # Show which endpoint type is being used
+    if model_type == "qiskit":
+        print(f"API Endpoint: /v1/completions (legacy)")
+    elif model_type in ["llama", "Qwen", "deepseek"]:
+        print(f"API Endpoint: /v1/chat/completions")
+    elif model_type in ["openai", "openaireasoning"]:
+        print(f"API Endpoint: /v1/responses")
+
     print("=" * 80)
     print()
 
     # Warning for default endpoint
     if "qiskit-code-assistant.quantum.ibm.com" in url:
-        print("⚠️  NOTE: Using default Qiskit Code Assistant endpoint")
-        print("   If you encounter 404 errors, please verify:")
-        print("   - The base URL is correct (check IBM Quantum documentation)")
-        print("   - Your API key has access to Qiskit Code Assistant")
-        print("   - The model name is correct")
+        print("ℹ️  Using Qiskit Code Assistant endpoint")
+        print("   Endpoint: Legacy /completions API")
         print("   Documentation: https://quantum.cloud.ibm.com/docs")
         print()
 
