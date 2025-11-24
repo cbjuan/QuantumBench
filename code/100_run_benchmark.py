@@ -107,6 +107,8 @@ def load_examples(seed: int):
 
     # Load and merge category data (subdomain information)
     category_df = pd.read_csv(CATEGORY_PATH)
+    # Use 'Subdomain_question' column and rename to 'Subdomain' for compatibility
+    category_df = category_df.rename(columns={'Subdomain_question': 'Subdomain'})
     question_df = question_df.merge(category_df[['Question id', 'Subdomain']], on='Question id', how='left')
 
     # Fill missing subdomains with 'Unknown'
