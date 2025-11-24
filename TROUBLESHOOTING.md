@@ -293,8 +293,9 @@ These issues have been fixed in recent commits:
 
 | Issue | Commit | Date | Fix |
 |-------|--------|------|-----|
-| **API 404 Errors** | `ea84722` | 2024-11-24 | **Use legacy /completions endpoint for Qiskit** |
+| API 404 Errors | `ea84722` | 2024-11-24 | Use legacy /completions endpoint for Qiskit |
 | Analysis TypeError | `88b4023` | 2024-11-24 | Convert columns to numeric before mean calculation |
+| Comparison TypeError | `deb7553` | 2024-11-24 | Fix TypeError in compare_prompts.py |
 | 404 Error Diagnostics | `ffe19fa` | 2024-11-24 | Add detailed error messages and troubleshooting |
 | Subdomain KeyError | `8c5a322` | 2024 | Use correct column name from category.csv |
 | Missing Subdomain Data | `d9b3763` | 2024 | Merge category data properly |
@@ -307,8 +308,6 @@ Update your code to get these fixes:
 ```bash
 git pull origin claude/qiskit-benchmark-agent-01PmNocvTBdRULRzbykrcDxR
 ```
-
-**Latest Fix (Commit `ea84722`)**: The API 404 errors have been resolved! The benchmark now correctly uses the legacy `/completions` endpoint instead of `/chat/completions` for Qiskit Code Assistant.
 
 ---
 
@@ -374,4 +373,4 @@ QuantumBench/
 ---
 
 **Last Updated**: 2024-11-24
-**Applies to**: Commits `ea84722` and later
+**Applies to**: Commits `deb7553` and later
