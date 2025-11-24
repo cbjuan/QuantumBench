@@ -5,6 +5,7 @@ import pickle
 import random
 import re
 import signal
+import time
 from collections import namedtuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -135,10 +136,75 @@ def create_prompts(examples, prompt_type: str):
 
 
 
+def retry_with_exponential_backoff(
+    func,
+    max_retries: int = 3,
+    initial_delay: float = 2.0,
+    exponential_base: float = 2.0,
+    jitter: bool = True
+):
+    """
+    Retry a function with exponential backoff.
+
+    Args:
+        func: Function to retry
+        max_retries: Maximum number of retry attempts
+        initial_delay: Initial delay in seconds
+        exponential_base: Base for exponential backoff
+        jitter: Add random jitter to prevent thundering herd
+
+    Returns:
+        Result from the function call
+
+    Raises:
+        Last exception if all retries fail
+    """
+    def wrapper(*args, **kwargs):
+        num_retries = 0
+        delay = initial_delay
+
+        while True:
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                num_retries += 1
+
+                # Check if we should retry based on exception type
+                should_retry = False
+                error_msg = str(e).lower()
+
+                # Retry on rate limits, timeouts, connection errors
+                if any(keyword in error_msg for keyword in [
+                    'rate limit', '429', 'timeout', 'connection',
+                    'temporary', 'unavailable', '503', '502', '504'
+                ]):
+                    should_retry = True
+
+                # Don't retry on authentication errors, invalid requests
+                if any(keyword in error_msg for keyword in [
+                    'authentication', '401', '403', 'invalid', 'bad request', '400'
+                ]):
+                    should_retry = False
+                    raise e
+
+                if num_retries > max_retries or not should_retry:
+                    raise e
+
+                # Calculate delay with optional jitter
+                sleep_time = delay * (exponential_base ** (num_retries - 1))
+                if jitter:
+                    sleep_time = sleep_time * (0.5 + random.random())
+
+                print(f"Retry {num_retries}/{max_retries} after error: {str(e)[:100]}... Waiting {sleep_time:.1f}s")
+                time.sleep(sleep_time)
+
+    return wrapper
+
+
 
 def call_model(prompt: str, model_type: str, client_type: str, url: str, model_name: str, effort: str) -> Union[str, None]:
 
-    ## Cliant
+    ## Client
     if client_type == "local":
         client = openai.OpenAI(
             api_key="mykey",
@@ -157,7 +223,7 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
 
 
     ## Prompt
-    if model_type == ["llama", "Qwen"]:
+    if model_type in ["llama", "Qwen"]:
         systemprompt ="""
         You are a very intelligent assistant, who follows instructions directly.
         """
@@ -174,29 +240,38 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
         ]
 
 
-    ## Call model
+    ## Call model with retry logic
     if model_type == "openai":
-        response = client.responses.create(
-            model=model_name,
-            instructions="You are a very intelligent assistant, who follows instructions directly.",
-            input=prompt,
-        )
+        @retry_with_exponential_backoff
+        def _call_api():
+            return client.responses.create(
+                model=model_name,
+                instructions="You are a very intelligent assistant, who follows instructions directly.",
+                input=prompt,
+            )
+        response = _call_api()
         out_response = response.output[0].content[0].text
 
     elif model_type == "openaireasoning":
-        response = client.responses.create(
-            model=model_name,
-            reasoning={"effort": effort}, ## minimal, low, medium, high
-            instructions="You are a very intelligent assistant, who follows instructions directly.",
-            input=prompt,
-        )
+        @retry_with_exponential_backoff
+        def _call_api():
+            return client.responses.create(
+                model=model_name,
+                reasoning={"effort": effort}, ## minimal, low, medium, high
+                instructions="You are a very intelligent assistant, who follows instructions directly.",
+                input=prompt,
+            )
+        response = _call_api()
         out_response = response.output[1].content[0].text
     else:
-        response = client.chat.completions.create(
-            model=model_name,
-            temperature=0.7,
-            messages=messages,
-        )
+        @retry_with_exponential_backoff
+        def _call_api():
+            return client.chat.completions.create(
+                model=model_name,
+                temperature=0.7,
+                messages=messages,
+            )
+        response = _call_api()
         out_response = response.choices[0].message.content if response.choices else None
 
     try:
@@ -386,7 +461,7 @@ def main(problem_name, model_name, out_dir, prompt_type, model_type, client_type
     with open(csv_filename, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(['Question id', 'Question', 'Correct answer', 'Correct index', 'Model answer index',
-                            'Model answer', 'Correct', 'Model response', 'Subdomain', 'Source File',
+                            'Model answer', 'Correct', 'Model response', 'Subdomain',
                             'Prompt tokens', 'Cached tokens', 'Completion tokens'])
 
         for question_id, example, response, model_answer, prompt_tokens, cached_tokens, completion_tokens in results:
@@ -398,8 +473,9 @@ def main(problem_name, model_name, out_dir, prompt_type, model_type, client_type
                 model_answer,
                 example[LETTER_TO_INDEX[model_answer] + 2] if model_answer in LETTER_TO_INDEX else "No answer",
                 model_answer == INDEX_TO_LETTER[example.correct_index],
-                # response,
-                response[-100:], ## only save the last 100 characters to avoid csv size issue
+                # NOTE: Response is truncated to last 100 characters to keep CSV file size manageable.
+                # Full responses are preserved in cache files at: cache/<job_name>/<question_id>_response.pkl
+                response[-100:],
                 example.subdomain,
                 prompt_tokens,
                 cached_tokens,
