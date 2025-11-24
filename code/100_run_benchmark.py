@@ -278,14 +278,12 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
 
     elif model_type == "qiskit":
         # Qiskit Code Assistant uses legacy /completions endpoint (not /chat/completions)
-        # Format: plain prompt string with system message prepended
-        full_prompt = "You are a very intelligent assistant, who follows instructions directly.\n\n" + prompt
-
+        # Send the prompt directly without additional system instructions
         @retry_with_exponential_backoff
         def _call_api():
             return client.completions.create(
                 model=model_name,
-                prompt=full_prompt,
+                prompt=prompt,
                 temperature=0.7,
                 max_tokens=2000,
             )
