@@ -231,7 +231,7 @@ def run_benchmark(args: argparse.Namespace) -> bool:
         'code/100_run_benchmark.py',
         '--problem-name', args.problem_name,
         '--model-name', args.model_name,
-        '--model-type', 'openai',  # Use openai type since Qiskit API is OpenAI-compatible
+        '--model-type', 'qiskit',  # Use qiskit type for legacy /completions endpoint
         '--client-type', 'local',  # Use local client type to specify custom base URL
         '--effort', 'None',
         '--prompt-type', args.prompt_type,

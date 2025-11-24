@@ -275,6 +275,23 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
             )
         response = _call_api()
         out_response = response.output[1].content[0].text
+
+    elif model_type == "qiskit":
+        # Qiskit Code Assistant uses legacy /completions endpoint (not /chat/completions)
+        # Format: plain prompt string with system message prepended
+        full_prompt = "You are a very intelligent assistant, who follows instructions directly.\n\n" + prompt
+
+        @retry_with_exponential_backoff
+        def _call_api():
+            return client.completions.create(
+                model=model_name,
+                prompt=full_prompt,
+                temperature=0.7,
+                max_tokens=2000,
+            )
+        response = _call_api()
+        out_response = response.choices[0].text if response.choices else None
+
     else:
         @retry_with_exponential_backoff
         def _call_api():
@@ -287,9 +304,21 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
         out_response = response.choices[0].message.content if response.choices else None
 
     try:
-        prompt_tokens = getattr(response.usage, "input_tokens", 0)
-        cached_tokens = getattr(response.usage.input_tokens_details, "cached_tokens", 0)
-        completion_tokens = getattr(response.usage, "output_tokens", 0)
+        # Try new format first (input_tokens/output_tokens)
+        prompt_tokens = getattr(response.usage, "input_tokens", None)
+        completion_tokens = getattr(response.usage, "output_tokens", None)
+
+        # Fallback to legacy format (prompt_tokens/completion_tokens)
+        if prompt_tokens is None:
+            prompt_tokens = getattr(response.usage, "prompt_tokens", 0)
+        if completion_tokens is None:
+            completion_tokens = getattr(response.usage, "completion_tokens", 0)
+
+        # Try to get cached tokens (may not exist in all formats)
+        try:
+            cached_tokens = getattr(response.usage.input_tokens_details, "cached_tokens", 0)
+        except:
+            cached_tokens = 0
     except:
         prompt_tokens = 0
         cached_tokens = 0
@@ -408,11 +437,23 @@ def process_question(question_id, prompt, example, args, prompt_type, df_old=Non
 
 
     except Exception as e:
-        print(f"Error in question {question_id}: {e}")
+        error_msg = str(e)
+
+        # Provide specific guidance for 404 errors
+        if '404' in error_msg or 'Not Found' in error_msg:
+            print(f"❌ Question {question_id} - API endpoint not found (404)")
+            print(f"   Error: {error_msg}")
+            print(f"   ⚠️  The API endpoint may be incorrect. Please verify:")
+            print(f"   1. Check IBM Quantum documentation for the correct base URL")
+            print(f"   2. Verify your model name is correct")
+            print(f"   3. Ensure your API key has access to the endpoint")
+        else:
+            print(f"Error in question {question_id}: {e}")
+
         return (
             question_id,
             example,
-            "Error",
+            f"Error: {error_msg[:100]}",  # Include truncated error message
             "No response",
             0, 0, 0
         )
@@ -421,6 +462,35 @@ def process_question(question_id, prompt, example, args, prompt_type, df_old=Non
 
 
 def main(problem_name, model_name, out_dir, prompt_type, model_type, client_type, url, effort, job_name, seed, num_workers=1):
+
+    # Print configuration information
+    print("=" * 80)
+    print("BENCHMARK CONFIGURATION")
+    print("=" * 80)
+    print(f"Model Type: {model_type}")
+    print(f"Client Type: {client_type}")
+    print(f"API Base URL: {url}")
+    print(f"Model Name: {model_name}")
+    print(f"Prompt Type: {prompt_type}")
+    print(f"Workers: {num_workers}")
+
+    # Show which endpoint type is being used
+    if model_type == "qiskit":
+        print(f"API Endpoint: /v1/completions (legacy)")
+    elif model_type in ["llama", "Qwen", "deepseek"]:
+        print(f"API Endpoint: /v1/chat/completions")
+    elif model_type in ["openai", "openaireasoning"]:
+        print(f"API Endpoint: /v1/responses")
+
+    print("=" * 80)
+    print()
+
+    # Warning for default endpoint
+    if "qiskit-code-assistant.quantum.ibm.com" in url:
+        print("ℹ️  Using Qiskit Code Assistant endpoint")
+        print("   Endpoint: Legacy /completions API")
+        print("   Documentation: https://quantum.cloud.ibm.com/docs")
+        print()
 
     examples = load_examples(seed)
     prompts, examples = create_prompts(examples, prompt_type)
@@ -494,7 +564,34 @@ def main(problem_name, model_name, out_dir, prompt_type, model_type, client_type
                 completion_tokens
             ])
 
+    # Print summary statistics
+    print()
+    print("=" * 80)
+    print("BENCHMARK COMPLETED")
+    print("=" * 80)
 
+    total_questions = len(results)
+    error_count = sum(1 for _, _, response, _, _, _, _ in results if response.startswith("Error"))
+    no_response_count = sum(1 for _, _, _, answer, _, _, _ in results if answer == "No response")
+    successful_count = total_questions - error_count
+
+    print(f"Total Questions: {total_questions}")
+    print(f"Successful Responses: {successful_count} ({successful_count/total_questions*100:.1f}%)")
+    print(f"Errors: {error_count} ({error_count/total_questions*100:.1f}%)")
+
+    if error_count > 0:
+        print()
+        print("⚠️  Some questions encountered errors.")
+        print("   Check the output above for specific error messages.")
+        print("   Common issues:")
+        print("   - Incorrect API endpoint URL")
+        print("   - Invalid model name")
+        print("   - Authentication problems")
+        print("   - Network connectivity issues")
+
+    print(f"\nResults saved to: {csv_filename}")
+    print("=" * 80)
+    print()
 
 
 

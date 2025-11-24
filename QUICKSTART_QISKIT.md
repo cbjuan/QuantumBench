@@ -191,29 +191,43 @@ The endpoint should be an OpenAI-compatible API URL provided by IBM Quantum.
 
 ## Troubleshooting
 
-### "API key is required"
-Set your API key:
+### Quick Fixes
+
+**"API key is required"** - Set your API key:
 ```bash
 export OPENAI_API_KEY="your_key"
 ```
 
-### "Connection failed"
-Check your base URL and internet connection:
+**"API 404 errors"** - Verify your endpoint and model name:
+```bash
+# Check IBM Quantum documentation for correct values
+# Update your configuration with the correct base URL and model name
+```
+
+**"Connection failed"** - Check your base URL and internet connection:
 ```bash
 curl https://qiskit-code-assistant.quantum.ibm.com/v1/models
 ```
 
-### "Rate limit exceeded"
-Reduce the number of workers:
+**"Rate limit exceeded"** - Reduce the number of workers:
 ```bash
 --num-workers 2
 ```
 
-### "Dataset not found"
-Extract the dataset:
+**"Dataset not found"** - Extract the dataset:
 ```bash
 unzip -P 'do_not_use_quantumbench_for_training' quantumbench.zip
 ```
+
+### Need More Help?
+
+See the comprehensive **[Troubleshooting Guide](TROUBLESHOOTING.md)** for:
+- Detailed API 404 error solutions
+- Authentication issues
+- Analysis errors
+- Data loading problems
+- Diagnostic commands
+- Recent fixes and updates
 
 ## Next Steps
 
