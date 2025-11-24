@@ -22,9 +22,11 @@ Error: Error code: 404 - {'detail': 'Not Found'}
 ```
 
 ### Cause
-This was caused by using the wrong API endpoint type. **This has been fixed in commit `ea84722`.**
-
-Qiskit Code Assistant uses the legacy `/completions` endpoint, not the newer `/chat/completions` endpoint. The benchmark now automatically uses the correct endpoint.
+API 404 errors typically occur when:
+- The API endpoint URL is incorrect or inaccessible
+- The model name doesn't exist or isn't available to your account
+- The API version path is missing or wrong (e.g., missing `/v1` in the URL)
+- Your account doesn't have access to the specified service
 
 ### Solution
 
@@ -92,39 +94,6 @@ If you still get 404 errors after verifying the endpoint and model:
 - Check your account has access to Qiskit Code Assistant
 - Verify your API key has the correct permissions
 - Contact IBM Quantum support for assistance
-
----
-
-## Analysis Errors
-
-### Symptom 1: TypeError with String/Float Concatenation
-```
-TypeError: can only concatenate str (not "float") to str
-```
-
-### Solution
-This has been fixed in commit `88b4023`. Update your code:
-```bash
-git pull origin claude/qiskit-benchmark-agent-01PmNocvTBdRULRzbykrcDxR
-```
-
-The fix converts difficulty and expertise columns to numeric before calculating means.
-
-### Symptom 2: KeyError for Missing Columns
-```
-KeyError: 'Subdomain'
-```
-
-### Solution
-This has been fixed in commit `8c5a322`. The code now correctly merges category data and uses the right column name.
-
-### Symptom 3: NaN Handling Issues
-```
-ValueError: cannot convert NaN to integer
-```
-
-### Solution
-This has been fixed in commit `571783d`. The code now properly filters out NaN values before analysis.
 
 ---
 
@@ -406,5 +375,3 @@ QuantumBench/
 
 **Last Updated**: 2024-11-24
 **Applies to**: Commits `ea84722` and later
-
-**Important Note**: As of commit `ea84722`, the benchmark automatically uses the correct legacy `/completions` endpoint for Qiskit Code Assistant. No additional configuration is needed.
