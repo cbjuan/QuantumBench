@@ -220,16 +220,19 @@ def call_model(prompt: str, model_type: str, client_type: str, url: str, model_n
     if client_type == "local":
         client = openai.OpenAI(
             api_key=OPENAI_API_KEY,  # Use actual API key from environment
-            base_url=f"{url}/v1"
+            base_url=f"{url}/v1",
+            default_headers={"X-Caller": "QuantumBench"}
         )
     elif client_type == "openrouter":
         client = openai.OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=OPENROUTER_API_KEY,
+            default_headers={"X-Caller": "QuantumBench"}
         )
     elif client_type == "openai":
         client = openai.OpenAI(
             api_key=OPENAI_API_KEY,
+            default_headers={"X-Caller": "QuantumBench"}
         )
 
 
