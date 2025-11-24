@@ -38,6 +38,7 @@ python code/qiskit_benchmark_agent.py --analyze
 **Documentation:**
 - [Quick Start Guide](QUICKSTART_QISKIT.md) - Get running in 5 minutes
 - [Full Documentation](QISKIT_AGENT_README.md) - Complete usage guide
+- [Troubleshooting Guide](TROUBLESHOOTING.md) - Fix common issues (404 errors, auth, etc.)
 - [Comparison Guide](COMPARISON_GUIDE.md) - Optimize prompt types
 - [GitHub Actions Setup](.github/WORKFLOW_SETUP.md) - Automated workflows
 
