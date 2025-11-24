@@ -293,7 +293,9 @@ These issues have been fixed in recent commits:
 
 | Issue | Commit | Date | Fix |
 |-------|--------|------|-----|
-| **API 404 Errors** | `ea84722` | 2024-11-24 | **Use legacy /completions endpoint for Qiskit** |
+| **Comparison TypeError** | `deb7553` | 2024-11-24 | **Fix TypeError in compare_prompts.py** |
+| **API 403 Forbidden** | `c979222` | 2024-11-24 | **Use actual API key instead of hardcoded value** |
+| API 404 Errors | `ea84722` | 2024-11-24 | Use legacy /completions endpoint for Qiskit |
 | Analysis TypeError | `88b4023` | 2024-11-24 | Convert columns to numeric before mean calculation |
 | 404 Error Diagnostics | `ffe19fa` | 2024-11-24 | Add detailed error messages and troubleshooting |
 | Subdomain KeyError | `8c5a322` | 2024 | Use correct column name from category.csv |
@@ -308,7 +310,9 @@ Update your code to get these fixes:
 git pull origin claude/qiskit-benchmark-agent-01PmNocvTBdRULRzbykrcDxR
 ```
 
-**Latest Fix (Commit `ea84722`)**: The API 404 errors have been resolved! The benchmark now correctly uses the legacy `/completions` endpoint instead of `/chat/completions` for Qiskit Code Assistant.
+**Latest Fixes**:
+- **Commit `deb7553`**: Fixed TypeError in `compare_prompts.py` - now converts difficulty/expertise columns to numeric before calculating means
+- **Commit `c979222`**: Fixed 403 Forbidden errors - now uses actual API key from `OPENAI_API_KEY` environment variable instead of hardcoded value
 
 ---
 
@@ -374,4 +378,4 @@ QuantumBench/
 ---
 
 **Last Updated**: 2024-11-24
-**Applies to**: Commits `ea84722` and later
+**Applies to**: Commits `deb7553` and later
