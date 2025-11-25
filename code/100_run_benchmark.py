@@ -39,7 +39,7 @@ python code/100_run_benchmark.py \
 SEED=0
 OPENROUTER_API_KEY=None
 # OPENROUTER_API_KEY=os.environ["OPENROUTER_API_KEY"]
-OPENAI_API_KEY=os.environ["OPENAI_API_KEY"]
+OPENAI_API_KEY=os.environ.get("QISKIT_API_KEY") or os.environ.get("OPENAI_API_KEY")
 
 QB_PATH = './quantumbench/quantumbench.csv'
 CATEGORY_PATH = './quantumbench/category.csv'

@@ -110,7 +110,38 @@ uv pip compile pyproject.toml > requirements.txt
 uv pip sync requirements.txt
 ```
 
-Set `OPENAI_API_KEY` in your environment before invoking the OpenAI client. If you plan to route requests through OpenRouter, also export `OPENROUTER_API_KEY`.
+### API Key Configuration
+
+The benchmark supports multiple API providers through environment variables:
+
+**For Qiskit Code Assistant (IBM Quantum):**
+```bash
+export QISKIT_API_KEY="your_ibm_cloud_api_key"
+```
+
+**For OpenAI models:**
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+**For OpenRouter:**
+```bash
+export OPENROUTER_API_KEY="your_openrouter_key"
+```
+
+> **Note**: The main benchmark script (`100_run_benchmark.py`) accepts both `QISKIT_API_KEY` and `OPENAI_API_KEY`, with `QISKIT_API_KEY` taking precedence. This maintains backward compatibility while supporting IBM Quantum's naming convention.
+
+### Quick Test
+
+Test your setup with a small subset (5 questions):
+```bash
+# For Qiskit Code Assistant
+export QISKIT_API_KEY="your_ibm_cloud_api_key"
+uv run python test_subset.py
+
+# For OpenAI (modify test_subset.py configuration first)
+export OPENAI_API_KEY="sk-..."
+uv run python test_subset.py
 
 ## Running the Benchmark
 Invoke `code/100_run_benchmark.py` from the command line. The script writes results to the directory specified by `--out-dir`.
